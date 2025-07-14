@@ -2,6 +2,7 @@
 
 ```bash
 docker create network crud
+```
 
 ```bash
 docker run -d --name crud-mysql -e MYSQL_ROOT_PASSWORD=siva --network crud crud-mysql:latest
@@ -21,3 +22,13 @@ docker run -d --name crud-backend \
     --network crud \
     crud-backend:latest
 ```
+
+```bash
+docker run -d --name crud-frontend \
+    -p 80:80 \
+    -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf \
+    --network crud \
+    crud-frontend:latest
+```
+
+
