@@ -11,18 +11,12 @@ services:
       MYSQL_USER: crud
       MYSQL_PASSWORD: CrudApp@1
       MYSQL_ROOT_PASSWORD: siva
-    ports:
-      - "3306:3306"
-    restart: unless-stopped
     networks:
       - crud
 
   crud-redis:
     image: redis:7
     container_name: crud-redis
-    ports:
-      - "6379:6379"
-    restart: unless-stopped
     networks:
       - crud
 
@@ -39,8 +33,6 @@ services:
       DB_PASSWORD: CrudApp@1
       REDIS_HOST: crud-redis
       REDIS_SSL: "false"
-    ports:
-      - "8080:8080"
     depends_on:
       - mysql
       - crud-redis
