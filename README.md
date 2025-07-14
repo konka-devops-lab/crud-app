@@ -26,7 +26,7 @@ docker run -d --name crud-backend \
 ```bash
 docker run -d --name crud-frontend \
   -p 80:80 \
-  -v nginx.conf:/etc/nginx/conf.d/default.conf \
+  -v $(pwd)/nginx.conf:/etc/nginx/conf.d/default.conf:ro \
   --network crud \
   crud-frontend:latest
 ```
