@@ -1,8 +1,8 @@
+version: "3.8"
+
 services:
   mysql:
-    build:
-      context: ./mysql
-      dockerfile: Dockerfile
+    image: crud-mysql:v1
     container_name: crud-mysql
     environment:
       MYSQL_DATABASE: crud_app
@@ -19,10 +19,7 @@ services:
       - crud
 
   crud-backend:
-    build:
-      context: ./crud-backend
-      dockerfile: Dockerfile
-    image: crud-backend:latest
+    image: crud-backend:v1
     container_name: crud-backend
     environment:
       DB_HOST: crud-mysql
@@ -39,10 +36,7 @@ services:
       - crud
 
   crud-frontend:
-    build:
-      context: ./crud-frontend
-      dockerfile: Dockerfile
-    image: crud-frontend:latest
+    image: crud-frontend:v1
     container_name: crud-frontend
     ports:
       - "80:80"
