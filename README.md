@@ -1,4 +1,25 @@
 # crud-app
+### 🔐 Redis SSL Handling in Spring Boot
+
+* In **local development**, use **non-SSL Redis** (default Redis Docker image).
+  So set:
+
+  ```properties
+  spring.data.redis.ssl.enabled=${REDIS_SSL:false}
+  ```
+
+* In **production (like AWS ElastiCache)**, Redis usually uses **SSL**.
+  So pass:
+
+  ```bash
+  -e REDIS_SSL=true
+  ```
+
+* This dynamic setup helps avoid connection errors when switching between local and cloud environments.
+
+✅ Use `${REDIS_SSL:false}` to **default to false** unless overridden.
+
+---
 
 ```bash
 docker create network crud
