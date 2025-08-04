@@ -71,6 +71,18 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
+  
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: nginx-exporter
+    command:
+      - -nginx.scrape-uri=http://crud-frontend/nginx_status
+    ports:
+      - "9113:9113"
+    depends_on:
+      - crud-frontend
+    networks:
+      - monitoring
 
 networks:
   crud:
