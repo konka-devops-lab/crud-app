@@ -75,3 +75,6 @@ services:
 networks:
   crud:
     driver: bridge
+
+volumes:
+  grafana-storage:
