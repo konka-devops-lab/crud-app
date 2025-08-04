@@ -47,7 +47,6 @@
 # # Run the application
 # CMD ["java", "-jar", "target/crud-app-1.0.0.jar"]
 
-
 # Stage 1: Build the application using Maven
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 
@@ -64,7 +63,7 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
- 
+
 # Copy the built jar from the build stage
 COPY --from=build /app/target/*.jar app.jar
 

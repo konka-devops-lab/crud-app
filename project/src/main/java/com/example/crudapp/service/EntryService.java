@@ -3,9 +3,9 @@ package com.example.crudapp.service;
 import com.example.crudapp.model.Entry;
 import com.example.crudapp.repository.EntryRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,8 +64,7 @@ public class EntryService {
             if (cachedData != null) {
                 cacheHitCounter.increment();
                 logger.info("Serving from Redis cache");
-                return objectMapper.readValue(cachedData, 
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, Entry.class));
+                return objectMapper.readValue(cachedData, new TypeReference<List<Entry>>() {});
             } else {
                 cacheMissCounter.increment();
                 logger.info("Cache miss: No cache found, fetching from database");
