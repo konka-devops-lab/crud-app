@@ -57,8 +57,7 @@ COPY pom.xml .
 COPY src ./src
 
 # Build the application
-RUN mvn clean package -DskipTests=true
-
+RUN mvn clean package -Dmaven.test.skip=true -X
 # Stage 2: Run the application using a lightweight JDK image
 FROM eclipse-temurin:17-jdk-alpine
 
