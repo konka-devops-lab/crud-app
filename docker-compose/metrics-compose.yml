@@ -47,7 +47,7 @@ services:
   redis_exporter:
     image: oliver006/redis_exporter:latest
     container_name: redis_exporter
-    command: --redis.addr=redis:6379
+    command: --redis.addr=crud-redis:6379
     ports:
       - "9121:9121"
     networks:
@@ -55,6 +55,6 @@ services:
 networks:
   crud:
     driver: bridge
-    
+
 volumes:
   grafana-storage:
