@@ -10,3 +10,11 @@ scrape_configs:
   - job_name: 'nginx'
     static_configs:
       - targets: ['nginx-exporter:9113']
+
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['mysqld_exporter:9104']
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis_exporter:9121']

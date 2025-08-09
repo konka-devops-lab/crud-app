@@ -32,8 +32,6 @@ services:
       - -nginx.scrape-uri=http://crud-frontend/nginx_status
     ports:
       - "9113:9113"
-    depends_on:
-      - crud-frontend
     networks:
       - crud
   
@@ -41,9 +39,7 @@ services:
     image: prom/mysqld-exporter:latest
     container_name: mysqld_exporter
     environment:
-      DATA_SOURCE_NAME: user:pass@(mysql:3306)/
-    depends_on:
-      - mysql
+      DATA_SOURCE_NAME: crud:CrudApp@1@(mysql:3306)/
     ports:
       - "9104:9104"
     networks:
@@ -52,8 +48,6 @@ services:
     image: oliver006/redis_exporter:latest
     container_name: redis_exporter
     command: --redis.addr=redis:6379
-    depends_on:
-      - redis
     ports:
       - "9121:9121"
     networks:
