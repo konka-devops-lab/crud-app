@@ -32,7 +32,7 @@ services:
     image: nginx/nginx-prometheus-exporter:latest
     container_name: nginx-exporter
     command:
-      - --nginx.scrape-uri=http://crud-frontend/stub_status
+      - --nginx.scrape-uri=http://crud-frontend/nginx_status
     ports:
       - "9113:9113"
     networks:
