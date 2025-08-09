@@ -1,0 +1,76 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Redis Reads/sec",
+      "targets": [
+        {
+          "expr": "rate(redis_commands_total{cmd=\"get\"}[1m])",
+          "legendFormat": "GET",
+          "refId": "A"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Redis Writes/sec",
+      "targets": [
+        {
+          "expr": "sum(rate(redis_commands_total{cmd=~\"set|setex|hset\"}[1m]))",
+          "legendFormat": "SET / SETEX / HSET",
+          "refId": "A"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Average Latency (All Commands, ms)",
+      "targets": [
+        {
+          "expr": "(rate(redis_commands_latencies_usec_sum[1m]) / rate(redis_commands_latencies_usec_count[1m])) / 1000",
+          "legendFormat": "All Commands",
+          "refId": "A"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Average Latency (GET, ms)",
+      "targets": [
+        {
+          "expr": "(rate(redis_commands_latencies_usec_sum{cmd=\"get\"}[1m]) / rate(redis_commands_latencies_usec_count{cmd=\"get\"}[1m])) / 1000",
+          "legendFormat": "GET Latency",
+          "refId": "A"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 }
+    }
+  ],
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": ["redis", "metrics", "latency"],
+  "templating": { "list": [] },
+  "time": { "from": "now-15m", "to": "now" },
+  "timezone": "",
+  "title": "Redis Metrics Dashboard",
+  "version": 1
+}
