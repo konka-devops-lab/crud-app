@@ -52,5 +52,9 @@ services:
       - "9121:9121"
     networks:
       - crud
+networks:
+  crud:
+    driver: bridge
+    
 volumes:
   grafana-storage:
