@@ -9,7 +9,7 @@ services:
       DB_USER: crud
       DB_PASSWORD: CrudApp@1
       REDIS_HOST: valkey-2cvmu0.serverless.use1.cache.amazonaws.com
-      REDIS_SSL: "true"
+      REDIS_SSL: "false"
     restart: unless-stopped
     networks:
       - crud
