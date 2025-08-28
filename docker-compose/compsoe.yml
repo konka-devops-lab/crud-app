@@ -10,9 +10,6 @@ services:
       DB_PASSWORD: CrudApp@1
       REDIS_HOST: valkey-2cvmu0.serverless.use1.cache.amazonaws.com
       REDIS_SSL: "true"
-    depends_on:
-      - mysql
-      - crud-redis
     restart: unless-stopped
     networks:
       - crud
