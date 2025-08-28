@@ -1,0 +1,63 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ../prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - crud
+  
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - crud
+    restart: unless-stopped
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=redis-datasource
+  
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: nginx-exporter
+    command:
+      - --nginx.scrape-uri=http://crud-frontend/nginx_status
+    ports:
+      - "9113:9113"
+    networks:
+      - crud
+  
+  mysqld_exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: mysqld_exporter
+    environment:
+      DATA_SOURCE_NAME: crud:CrudApp@1@(mysql:3306)/
+    ports:
+      - "9104:9104"
+    networks:
+      - crud
+  redis_exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: redis_exporter
+    command: --redis.addr=crud-redis:6379
+    ports:
+      - "9121:9121"
+    networks:
+      - crud
+networks:
+  crud:
+    driver: bridge
+
+volumes:
+  grafana-storage:
