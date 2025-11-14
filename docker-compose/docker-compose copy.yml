@@ -1,0 +1,52 @@
+services:
+  mysql:
+    image: crud-mysql:v1
+    container_name: crud-mysql
+    environment:
+      MYSQL_DATABASE: crud_app
+      MYSQL_USER: crud
+      MYSQL_PASSWORD: CrudApp@1
+      MYSQL_ROOT_PASSWORD: siva
+    networks:
+      - crud
+
+  crud-redis:
+    image: redis:7
+    container_name: crud-redis
+    networks:
+      - crud
+
+  crud-backend:
+    image: crud-backend:v1
+    container_name: crud-backend
+    environment:
+      DB_HOST: crud-mysql
+      DB_NAME: crud_app
+      DB_USER: crud
+      DB_PASSWORD: CrudApp@1
+      REDIS_HOST: crud-redis
+      REDIS_SSL: "false"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - crud-redis
+    restart: unless-stopped
+    networks:
+      - crud
+
+  # crud-frontend:
+  #   image: crud-frontend:v1
+  #   container_name: crud-frontend
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ../nginx.conf:/etc/nginx/conf.d/default.conf:ro
+  #   depends_on:
+  #     - crud-backend
+  #   restart: unless-stopped
+  #   networks:
+  #     - crud
+networks:
+  crud:
+    driver: bridge
