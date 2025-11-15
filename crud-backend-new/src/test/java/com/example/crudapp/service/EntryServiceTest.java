@@ -133,7 +133,7 @@ class EntryServiceTest {
         assertNotNull(result);
         assertEquals(1L, result.getId());
         verify(entryRepository).save(newEntry);
-        verify(redisTemplate).delete("all_entries"); // FIXED: Use redisTemplate.delete()
+        verify(redisTemplate).delete("all_entries");
     }
 
     @Test
@@ -151,8 +151,8 @@ class EntryServiceTest {
         assertEquals(200.0, result.getAmount());
         assertEquals("Updated description", result.getDescription());
         verify(entryRepository).save(testEntry);
-        verify(redisTemplate).delete("all_entries"); // FIXED: Use redisTemplate.delete()
-        verify(redisTemplate).delete("entry_1");     // FIXED: Use redisTemplate.delete()
+        verify(redisTemplate).delete("all_entries");
+        verify(redisTemplate).delete("entry_1");
     }
 
     @Test
@@ -180,8 +180,8 @@ class EntryServiceTest {
         // Assert
         assertTrue(result);
         verify(entryRepository).deleteById(1L);
-        verify(redisTemplate).delete("all_entries"); // FIXED: Use redisTemplate.delete()
-        verify(redisTemplate).delete("entry_1");     // FIXED: Use redisTemplate.delete()
+        verify(redisTemplate).delete("all_entries");
+        verify(redisTemplate).delete("entry_1");
     }
 
     @Test
@@ -203,6 +203,6 @@ class EntryServiceTest {
         entryService.clearAllCaches();
 
         // Assert
-        verify(redisTemplate).delete("all_entries"); // FIXED: Use redisTemplate.delete()
+        verify(redisTemplate).delete("all_entries");
     }
 }

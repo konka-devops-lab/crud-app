@@ -101,12 +101,38 @@ class EntryControllerTest {
     @Test
     void createEntry_ShouldReturn400WhenMissingAmount() throws Exception {
         // Arrange
-        Entry invalidEntry = new Entry(null, "Valid description", LocalDate.of(2024, 1, 15));
+        String invalidJson = "{\"amount\": null, \"description\": \"Valid description\", \"date\": \"2024-01-15\"}";
 
         // Act & Assert
         mockMvc.perform(post("/api/entries")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidEntry)))
+                .content(invalidJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Amount, description, and date are required"));
+    }
+
+    @Test
+    void createEntry_ShouldReturn400WhenMissingDescription() throws Exception {
+        // Arrange
+        String invalidJson = "{\"amount\": 100.0, \"description\": \"\", \"date\": \"2024-01-15\"}";
+
+        // Act & Assert
+        mockMvc.perform(post("/api/entries")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Amount, description, and date are required"));
+    }
+
+    @Test
+    void createEntry_ShouldReturn400WhenMissingDate() throws Exception {
+        // Arrange
+        String invalidJson = "{\"amount\": 100.0, \"description\": \"Valid description\"}";
+
+        // Act & Assert
+        mockMvc.perform(post("/api/entries")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidJson))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Amount, description, and date are required"));
     }
@@ -127,6 +153,19 @@ class EntryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.amount").value(200.0))
                 .andExpect(jsonPath("$.description").value("Updated description"));
+    }
+
+    @Test
+    void updateEntry_ShouldReturn400WhenMissingFields() throws Exception {
+        // Arrange
+        String invalidJson = "{\"amount\": null, \"description\": \"\", \"date\": null}";
+
+        // Act & Assert
+        mockMvc.perform(put("/api/entries/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Amount, description, and date are required"));
     }
 
     @Test
