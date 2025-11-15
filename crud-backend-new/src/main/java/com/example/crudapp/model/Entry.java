@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "entries")
@@ -21,13 +23,18 @@ public class Entry {
     @Column(nullable = false)
     private String description;
     
+    @NotNull(message = "Date is required")
+    @Column(nullable = false)
+    private LocalDate date;
+    
     // Default constructor
     public Entry() {}
     
     // Constructor with parameters
-    public Entry(Double amount, String description) {
+    public Entry(Double amount, String description, LocalDate date) {
         this.amount = amount;
         this.description = description;
+        this.date = date;
     }
     
     // Getters and Setters
@@ -55,12 +62,21 @@ public class Entry {
         this.description = description;
     }
     
+    public LocalDate getDate() {
+        return date;
+    }
+    
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+    
     @Override
     public String toString() {
         return "Entry{" +
                 "id=" + id +
                 ", amount=" + amount +
                 ", description='" + description + '\'' +
+                ", date=" + date +
                 '}';
     }
 }

@@ -18,7 +18,8 @@ import java.util.concurrent.TimeUnit;
 public class EntryService {
     
     private static final Logger logger = LoggerFactory.getLogger(EntryService.class);
-    private static final String CACHE_KEY = "all_entries";
+    private static final String ALL_ENTRIES_CACHE_KEY = "all_entries";
+    private static final String ENTRY_CACHE_KEY_PREFIX = "entry_";
     private static final int CACHE_TTL = 60; // seconds
     
     @Autowired
@@ -33,23 +34,23 @@ public class EntryService {
     public List<Entry> getAllEntries() {
         try {
             // Try to get from cache first
-            String cachedData = redisTemplate.opsForValue().get(CACHE_KEY);
+            String cachedData = redisTemplate.opsForValue().get(ALL_ENTRIES_CACHE_KEY);
             
             if (cachedData != null) {
-                logger.info("Serving from Redis cache");
+                logger.info("Serving all entries from Redis cache");
                 return objectMapper.readValue(cachedData, 
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Entry.class));
             } else {
-                logger.info("Cache miss: No cache found, fetching from database");
+                logger.info("Cache miss: No cache found for all entries, fetching from database");
             }
             
             // Fetch from database
             List<Entry> entries = entryRepository.findAll();
             
             // Cache the result
-            logger.info("Serving from Database and caching the result");
+            logger.info("Serving all entries from Database and caching the result");
             String jsonData = objectMapper.writeValueAsString(entries);
-            redisTemplate.opsForValue().set(CACHE_KEY, jsonData, CACHE_TTL, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(ALL_ENTRIES_CACHE_KEY, jsonData, CACHE_TTL, TimeUnit.SECONDS);
             
             return entries;
             
@@ -64,14 +65,76 @@ public class EntryService {
         }
     }
     
+    public Entry getEntryById(Long id) {
+        String cacheKey = ENTRY_CACHE_KEY_PREFIX + id;
+        
+        try {
+            // Try to get from cache first
+            String cachedData = redisTemplate.opsForValue().get(cacheKey);
+            
+            if (cachedData != null) {
+                logger.info("Serving entry {} from Redis cache", id);
+                return objectMapper.readValue(cachedData, Entry.class);
+            } else {
+                logger.info("Cache miss: No cache found for entry {}, fetching from database", id);
+            }
+            
+            // Fetch from database
+            Optional<Entry> entry = entryRepository.findById(id);
+            
+            if (entry.isPresent()) {
+                // Cache the result
+                logger.info("Serving entry {} from Database and caching the result", id);
+                String jsonData = objectMapper.writeValueAsString(entry.get());
+                redisTemplate.opsForValue().set(cacheKey, jsonData, CACHE_TTL, TimeUnit.SECONDS);
+                
+                return entry.get();
+            }
+            
+            return null;
+            
+        } catch (JsonProcessingException e) {
+            logger.error("Error processing JSON for cache", e);
+            // Fallback to database only
+            return entryRepository.findById(id).orElse(null);
+        } catch (Exception e) {
+            logger.error("Redis Fetch Error for entry {}", id, e);
+            // Fallback to database only
+            return entryRepository.findById(id).orElse(null);
+        }
+    }
+    
     public Entry createEntry(Entry entry) {
         Entry savedEntry = entryRepository.save(entry);
         logger.info("Inserted entry with ID: {}", savedEntry.getId());
         
         // Clear the cache because data changed
-        clearCache();
+        clearAllEntriesCache();
         
         return savedEntry;
+    }
+    
+    public Entry updateEntry(Long id, Entry entryDetails) {
+        Optional<Entry> optionalEntry = entryRepository.findById(id);
+        
+        if (optionalEntry.isPresent()) {
+            Entry existingEntry = optionalEntry.get();
+            existingEntry.setAmount(entryDetails.getAmount());
+            existingEntry.setDescription(entryDetails.getDescription());
+            existingEntry.setDate(entryDetails.getDate());
+            
+            Entry updatedEntry = entryRepository.save(existingEntry);
+            logger.info("Updated entry with ID: {}", id);
+            
+            // Clear relevant caches because data changed
+            clearAllEntriesCache();
+            clearEntryCache(id);
+            
+            return updatedEntry;
+        }
+        
+        logger.warn("Update failed: Entry with ID {} not found", id);
+        return null;
     }
     
     public boolean deleteEntry(Long id) {
@@ -81,21 +144,47 @@ public class EntryService {
             entryRepository.deleteById(id);
             logger.info("Deleted entry with ID: {}", id);
             
-            // Clear the cache because data changed
-            clearCache();
+            // Clear relevant caches because data changed
+            clearAllEntriesCache();
+            clearEntryCache(id);
             
             return true;
         }
         
+        logger.warn("Delete failed: Entry with ID {} not found", id);
         return false;
     }
     
-    private void clearCache() {
+    private void clearAllEntriesCache() {
         try {
-            redisTemplate.delete(CACHE_KEY);
-            logger.info("Cache cleared for {}", CACHE_KEY);
+            redisTemplate.delete(ALL_ENTRIES_CACHE_KEY);
+            logger.info("Cache cleared for {}", ALL_ENTRIES_CACHE_KEY);
         } catch (Exception e) {
-            logger.error("Error clearing cache", e);
+            logger.error("Error clearing all entries cache", e);
+        }
+    }
+    
+    private void clearEntryCache(Long id) {
+        try {
+            String cacheKey = ENTRY_CACHE_KEY_PREFIX + id;
+            redisTemplate.delete(cacheKey);
+            logger.info("Cache cleared for {}", cacheKey);
+        } catch (Exception e) {
+            logger.error("Error clearing entry cache for ID: {}", id, e);
+        }
+    }
+    
+    // Optional: Method to clear all caches (useful for maintenance)
+    public void clearAllCaches() {
+        try {
+            // Clear all entries cache
+            redisTemplate.delete(ALL_ENTRIES_CACHE_KEY);
+            
+            // Clear all individual entry caches (this is a simplified approach)
+            // In production, you might want to use Redis patterns to delete all entry_* keys
+            logger.info("All caches cleared");
+        } catch (Exception e) {
+            logger.error("Error clearing all caches", e);
         }
     }
 }

@@ -34,12 +34,32 @@ public class EntryController {
         }
     }
     
+    @GetMapping("/entries/{id}")
+    public ResponseEntity<?> getEntryById(@PathVariable Long id) {
+        try {
+            Entry entry = entryService.getEntryById(id);
+            if (entry != null) {
+                return ResponseEntity.ok(entry);
+            } else {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Entry not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+        } catch (Exception e) {
+            logger.error("Error fetching entry with id: " + id, e);
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Failed to fetch entry");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+    
     @PostMapping("/entries")
     public ResponseEntity<?> createEntry(@Valid @RequestBody Entry entry) {
         try {
-            if (entry.getAmount() == null || entry.getDescription() == null || entry.getDescription().trim().isEmpty()) {
+            if (entry.getAmount() == null || entry.getDescription() == null || 
+                entry.getDescription().trim().isEmpty() || entry.getDate() == null) {
                 Map<String, String> error = new HashMap<>();
-                error.put("error", "Amount and description are required");
+                error.put("error", "Amount, description, and date are required");
                 return ResponseEntity.badRequest().body(error);
             }
             
@@ -50,6 +70,34 @@ public class EntryController {
             logger.error("Error creating entry", e);
             Map<String, String> error = new HashMap<>();
             error.put("error", "Failed to insert entry");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+    
+    @PutMapping("/entries/{id}")
+    public ResponseEntity<?> updateEntry(@PathVariable Long id, @Valid @RequestBody Entry entryDetails) {
+        try {
+            if (entryDetails.getAmount() == null || entryDetails.getDescription() == null || 
+                entryDetails.getDescription().trim().isEmpty() || entryDetails.getDate() == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Amount, description, and date are required");
+                return ResponseEntity.badRequest().body(error);
+            }
+            
+            Entry updatedEntry = entryService.updateEntry(id, entryDetails);
+            
+            if (updatedEntry != null) {
+                return ResponseEntity.ok(updatedEntry);
+            } else {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Entry not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+            
+        } catch (Exception e) {
+            logger.error("Error updating entry with id: " + id, e);
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Failed to update entry");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
