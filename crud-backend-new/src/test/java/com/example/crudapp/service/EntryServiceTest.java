@@ -70,6 +70,7 @@ class EntryServiceTest {
         assertNotNull(result);
         assertEquals(2, result.size());
         verify(entryRepository).findAll();
+        verify(valueOperations).set(eq("all_entries"), eq("json-data"), eq(60L), any());
     }
 
     @Test
@@ -102,6 +103,7 @@ class EntryServiceTest {
         assertNotNull(result);
         assertEquals(1L, result.getId());
         verify(entryRepository).findById(1L);
+        verify(valueOperations).set(eq("entry_1"), eq("json-data"), eq(60L), any());
     }
 
     @Test
@@ -123,7 +125,6 @@ class EntryServiceTest {
         // Arrange
         Entry newEntry = new Entry(150.0, "New entry", LocalDate.of(2024, 1, 20));
         when(entryRepository.save(newEntry)).thenReturn(testEntry);
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         // Act
         Entry result = entryService.createEntry(newEntry);
@@ -132,7 +133,7 @@ class EntryServiceTest {
         assertNotNull(result);
         assertEquals(1L, result.getId());
         verify(entryRepository).save(newEntry);
-        verify(valueOperations).delete("all_entries");
+        verify(redisTemplate).delete("all_entries"); // FIXED: Use redisTemplate.delete()
     }
 
     @Test
@@ -141,7 +142,6 @@ class EntryServiceTest {
         Entry updatedDetails = new Entry(200.0, "Updated description", LocalDate.of(2024, 1, 16));
         when(entryRepository.findById(1L)).thenReturn(Optional.of(testEntry));
         when(entryRepository.save(testEntry)).thenReturn(testEntry);
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         // Act
         Entry result = entryService.updateEntry(1L, updatedDetails);
@@ -151,8 +151,8 @@ class EntryServiceTest {
         assertEquals(200.0, result.getAmount());
         assertEquals("Updated description", result.getDescription());
         verify(entryRepository).save(testEntry);
-        verify(valueOperations).delete("all_entries");
-        verify(valueOperations).delete("entry_1");
+        verify(redisTemplate).delete("all_entries"); // FIXED: Use redisTemplate.delete()
+        verify(redisTemplate).delete("entry_1");     // FIXED: Use redisTemplate.delete()
     }
 
     @Test
@@ -173,7 +173,6 @@ class EntryServiceTest {
     void deleteEntry_ShouldDeleteEntryAndClearCache() {
         // Arrange
         when(entryRepository.findById(1L)).thenReturn(Optional.of(testEntry));
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         // Act
         boolean result = entryService.deleteEntry(1L);
@@ -181,8 +180,8 @@ class EntryServiceTest {
         // Assert
         assertTrue(result);
         verify(entryRepository).deleteById(1L);
-        verify(valueOperations).delete("all_entries");
-        verify(valueOperations).delete("entry_1");
+        verify(redisTemplate).delete("all_entries"); // FIXED: Use redisTemplate.delete()
+        verify(redisTemplate).delete("entry_1");     // FIXED: Use redisTemplate.delete()
     }
 
     @Test
@@ -196,5 +195,14 @@ class EntryServiceTest {
         // Assert
         assertFalse(result);
         verify(entryRepository, never()).deleteById(1L);
+    }
+
+    @Test
+    void clearAllCaches_ShouldClearAllCaches() {
+        // Act
+        entryService.clearAllCaches();
+
+        // Assert
+        verify(redisTemplate).delete("all_entries"); // FIXED: Use redisTemplate.delete()
     }
 }
