@@ -35,18 +35,18 @@ services:
     networks:
       - crud
 
-  # crud-frontend:
-  #   image: crud-frontend:v1
-  #   container_name: crud-frontend
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - ../nginx.conf:/etc/nginx/conf.d/default.conf:ro
-  #   depends_on:
-  #     - crud-backend
-  #   restart: unless-stopped
-  #   networks:
-  #     - crud
+  crud-frontend:
+    image: crud-frontend:v1
+    container_name: crud-frontend
+    ports:
+      - "80:80"
+    volumes:
+      - ../nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - crud-backend
+    restart: unless-stopped
+    networks:
+      - crud
 networks:
   crud:
     driver: bridge
