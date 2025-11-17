@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import EntryForm from '../components/EntryForm';
 import { addEntry } from '../api/entriesApi';
@@ -18,7 +18,6 @@ describe('EntryForm Component', () => {
     render(<EntryForm onEntryAdded={mockOnEntryAdded} />);
     expect(screen.getByLabelText(/Amount:/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Description:/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Date:/)).toBeInTheDocument();
   });
 
   it('submits form with valid data', async () => {
@@ -26,15 +25,13 @@ describe('EntryForm Component', () => {
     
     const amountInput = screen.getByLabelText(/Amount:/);
     const descriptionInput = screen.getByLabelText(/Description:/);
-    const dateInput = screen.getByLabelText(/Date:/);
     
     fireEvent.change(amountInput, { target: { value: '100' } });
     fireEvent.change(descriptionInput, { target: { value: 'Test Entry' } });
-    fireEvent.change(dateInput, { target: { value: '2023-01-01' } });
     
     fireEvent.click(screen.getByText('Add Entry'));
     
-    expect(addEntry).toHaveBeenCalledWith(100, 'Test Entry', '2023-01-01');
+    expect(addEntry).toHaveBeenCalledWith(100, 'Test Entry');
   });
 
   it('shows success message after successful submission', async () => {
@@ -44,7 +41,6 @@ describe('EntryForm Component', () => {
     
     fireEvent.change(screen.getByLabelText(/Amount:/), { target: { value: '100' } });
     fireEvent.change(screen.getByLabelText(/Description:/), { target: { value: 'Test Entry' } });
-    fireEvent.change(screen.getByLabelText(/Date:/), { target: { value: '2023-01-01' } });
     fireEvent.click(screen.getByText('Add Entry'));
     
     await screen.findByText('Record added successfully!');

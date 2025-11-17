@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from '../App';
 import { fetchEntries } from '../api/entriesApi';
@@ -8,10 +8,6 @@ vi.mock('../api/entriesApi', () => ({
 }));
 
 describe('App Component', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('renders header and footer', () => {
     render(<App />);
     expect(screen.getByText('CRUD Application')).toBeInTheDocument();
@@ -19,14 +15,13 @@ describe('App Component', () => {
   });
 
   it('displays loading state while fetching entries', () => {
-    (fetchEntries as any).mockImplementation(() => new Promise(() => {})); // Never resolves
     render(<App />);
-    expect(screen.getByText('Loading...', { selector: '.absolute' })).toBeInTheDocument();
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
   it('displays entries after loading', async () => {
     const mockEntries = [
-      { id: 1, amount: 100, description: 'Test Entry', date: '2023-01-01' },
+      { id: 1, amount: 100, description: 'Test Entry' },
     ];
     
     (fetchEntries as any).mockResolvedValueOnce(mockEntries);

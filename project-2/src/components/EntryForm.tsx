@@ -10,7 +10,7 @@ interface EntryFormProps {
 const EntryForm: React.FC<EntryFormProps> = ({ onEntryAdded }) => {
   const [amount, setAmount] = useState<string>('');
   const [description, setDescription] = useState<string>('');
-  const [date, setDate] = useState<string>('');
+  const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [message, setMessage] = useState<MessageProps>({ text: '', type: 'success', visible: false });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,7 +20,7 @@ const EntryForm: React.FC<EntryFormProps> = ({ onEntryAdded }) => {
       await addEntry(Number(amount), description, date);
       setAmount('');
       setDescription('');
-      setDate('');
+      setDate(new Date().toISOString().split('T')[0]);
       onEntryAdded();
       setMessage({ text: 'Record added successfully!', type: 'success', visible: true });
     } catch (error) {
