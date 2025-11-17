@@ -31,7 +31,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-RUN npm run test
+npm run test -- --run
 # RUN npm run coverage
 RUN npm run build
 
