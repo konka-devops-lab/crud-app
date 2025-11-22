@@ -230,53 +230,57 @@ public class EntryService {
     @Autowired
     private MeterRegistry meterRegistry;
     
-    // Metrics counters
-    private final Counter cacheHitCounter;
-    private final Counter cacheMissCounter;
-    private final Counter entriesCreatedCounter;
-    private final Counter entriesUpdatedCounter;
-    private final Counter entriesDeletedCounter;
-    private final Counter entriesReadCounter;
-    private final Counter redisErrorCounter;
-    private final Counter jsonErrorCounter;
-    private final Timer databaseTimer;
+    // Metrics counters - LAZY INITIALIZATION (FIX FOR TESTS)
+    private Counter cacheHitCounter;
+    private Counter cacheMissCounter;
+    private Counter entriesCreatedCounter;
+    private Counter entriesUpdatedCounter;
+    private Counter entriesDeletedCounter;
+    private Counter entriesReadCounter;
+    private Counter redisErrorCounter;
+    private Counter jsonErrorCounter;
+    private Timer databaseTimer;
     
-    public EntryService(MeterRegistry meterRegistry) {
-        this.meterRegistry = meterRegistry;
-        this.cacheHitCounter = Counter.builder("app.cache.hits")
-                .description("Number of cache hits")
-                .register(meterRegistry);
-        this.cacheMissCounter = Counter.builder("app.cache.misses")
-                .description("Number of cache misses")
-                .register(meterRegistry);
-        this.entriesCreatedCounter = Counter.builder("app.entries.created")
-                .description("Number of entries created")
-                .register(meterRegistry);
-        this.entriesUpdatedCounter = Counter.builder("app.entries.updated")
-                .description("Number of entries updated")
-                .register(meterRegistry);
-        this.entriesDeletedCounter = Counter.builder("app.entries.deleted")
-                .description("Number of entries deleted")
-                .register(meterRegistry);
-        this.entriesReadCounter = Counter.builder("app.entries.read")
-                .description("Number of entries read")
-                .register(meterRegistry);
-        this.redisErrorCounter = Counter.builder("app.redis.errors")
-                .description("Number of Redis errors")
-                .register(meterRegistry);
-        this.jsonErrorCounter = Counter.builder("app.json.errors")
-                .description("Number of JSON processing errors")
-                .register(meterRegistry);
-        this.databaseTimer = Timer.builder("app.database.operations")
-                .description("Time spent on database operations")
-                .register(meterRegistry);
+    // Initialize metrics only when needed (not in constructor)
+    private void initMetrics() {
+        if (cacheHitCounter == null && meterRegistry != null) {
+            this.cacheHitCounter = Counter.builder("app.cache.hits")
+                    .description("Number of cache hits")
+                    .register(meterRegistry);
+            this.cacheMissCounter = Counter.builder("app.cache.misses")
+                    .description("Number of cache misses")
+                    .register(meterRegistry);
+            this.entriesCreatedCounter = Counter.builder("app.entries.created")
+                    .description("Number of entries created")
+                    .register(meterRegistry);
+            this.entriesUpdatedCounter = Counter.builder("app.entries.updated")
+                    .description("Number of entries updated")
+                    .register(meterRegistry);
+            this.entriesDeletedCounter = Counter.builder("app.entries.deleted")
+                    .description("Number of entries deleted")
+                    .register(meterRegistry);
+            this.entriesReadCounter = Counter.builder("app.entries.read")
+                    .description("Number of entries read")
+                    .register(meterRegistry);
+            this.redisErrorCounter = Counter.builder("app.redis.errors")
+                    .description("Number of Redis errors")
+                    .register(meterRegistry);
+            this.jsonErrorCounter = Counter.builder("app.json.errors")
+                    .description("Number of JSON processing errors")
+                    .register(meterRegistry);
+            this.databaseTimer = Timer.builder("app.database.operations")
+                    .description("Time spent on database operations")
+                    .register(meterRegistry);
+        }
     }
     
     public List<Entry> getAllEntries() {
+        initMetrics(); // Initialize metrics if needed
+        
         String traceId = generateTraceId();
         MDC.put("traceId", traceId);
         
-        Timer.Sample sample = Timer.start(meterRegistry);
+        Timer.Sample sample = meterRegistry != null ? Timer.start(meterRegistry) : null;
         
         try {
             logger.info("Fetching all entries");
@@ -286,51 +290,57 @@ public class EntryService {
             
             if (cachedData != null) {
                 logger.info("Serving all entries from Redis cache");
-                cacheHitCounter.increment();
-                entriesReadCounter.increment();
+                if (cacheHitCounter != null) cacheHitCounter.increment();
+                if (entriesReadCounter != null) entriesReadCounter.increment();
                 return objectMapper.readValue(cachedData, 
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Entry.class));
             } else {
                 logger.info("Cache miss: No cache found for all entries, fetching from database");
-                cacheMissCounter.increment();
+                if (cacheMissCounter != null) cacheMissCounter.increment();
             }
             
             // Fetch from database with timing
-            List<Entry> entries = databaseTimer.record(() -> entryRepository.findAll());
+            List<Entry> entries = databaseTimer != null ? 
+                databaseTimer.record(() -> entryRepository.findAll()) : 
+                entryRepository.findAll();
             
             // Cache the result
             logger.info("Serving all entries from Database and caching the result");
             String jsonData = objectMapper.writeValueAsString(entries);
             redisTemplate.opsForValue().set(ALL_ENTRIES_CACHE_KEY, jsonData, CACHE_TTL, TimeUnit.SECONDS);
             
-            entriesReadCounter.increment(entries.size());
+            if (entriesReadCounter != null) entriesReadCounter.increment(entries.size());
             logger.info("Retrieved {} entries from database", entries.size());
             
             return entries;
             
         } catch (JsonProcessingException e) {
             logger.error("Error processing JSON for cache", e);
-            jsonErrorCounter.increment();
+            if (jsonErrorCounter != null) jsonErrorCounter.increment();
             // Fallback to database only
             return entryRepository.findAll();
         } catch (Exception e) {
             logger.error("Redis Fetch Error", e);
-            redisErrorCounter.increment();
+            if (redisErrorCounter != null) redisErrorCounter.increment();
             // Fallback to database only
             return entryRepository.findAll();
         } finally {
-            sample.stop(Timer.builder("app.get_all_entries.duration")
-                    .tag("operation", "getAllEntries")
-                    .register(meterRegistry));
+            if (sample != null && meterRegistry != null) {
+                sample.stop(Timer.builder("app.get_all_entries.duration")
+                        .tag("operation", "getAllEntries")
+                        .register(meterRegistry));
+            }
             MDC.clear();
         }
     }
     
     public Entry getEntryById(Long id) {
+        initMetrics(); // Initialize metrics if needed
+        
         String traceId = generateTraceId();
         MDC.put("traceId", traceId);
         
-        Timer.Sample sample = Timer.start(meterRegistry);
+        Timer.Sample sample = meterRegistry != null ? Timer.start(meterRegistry) : null;
         String cacheKey = ENTRY_CACHE_KEY_PREFIX + id;
         
         try {
@@ -341,16 +351,18 @@ public class EntryService {
             
             if (cachedData != null) {
                 logger.info("Serving entry {} from Redis cache", id);
-                cacheHitCounter.increment();
-                entriesReadCounter.increment();
+                if (cacheHitCounter != null) cacheHitCounter.increment();
+                if (entriesReadCounter != null) entriesReadCounter.increment();
                 return objectMapper.readValue(cachedData, Entry.class);
             } else {
                 logger.info("Cache miss: No cache found for entry {}, fetching from database", id);
-                cacheMissCounter.increment();
+                if (cacheMissCounter != null) cacheMissCounter.increment();
             }
             
             // Fetch from database
-            Optional<Entry> entry = databaseTimer.record(() -> entryRepository.findById(id));
+            Optional<Entry> entry = databaseTimer != null ? 
+                databaseTimer.record(() -> entryRepository.findById(id)) : 
+                entryRepository.findById(id);
             
             if (entry.isPresent()) {
                 // Cache the result
@@ -358,7 +370,7 @@ public class EntryService {
                 String jsonData = objectMapper.writeValueAsString(entry.get());
                 redisTemplate.opsForValue().set(cacheKey, jsonData, CACHE_TTL, TimeUnit.SECONDS);
                 
-                entriesReadCounter.increment();
+                if (entriesReadCounter != null) entriesReadCounter.increment();
                 return entry.get();
             }
             
@@ -367,36 +379,42 @@ public class EntryService {
             
         } catch (JsonProcessingException e) {
             logger.error("Error processing JSON for cache", e);
-            jsonErrorCounter.increment();
+            if (jsonErrorCounter != null) jsonErrorCounter.increment();
             // Fallback to database only
             return entryRepository.findById(id).orElse(null);
         } catch (Exception e) {
             logger.error("Redis Fetch Error for entry {}", id, e);
-            redisErrorCounter.increment();
+            if (redisErrorCounter != null) redisErrorCounter.increment();
             // Fallback to database only
             return entryRepository.findById(id).orElse(null);
         } finally {
-            sample.stop(Timer.builder("app.get_entry_by_id.duration")
-                    .tag("operation", "getEntryById")
-                    .tag("entryId", id.toString())
-                    .register(meterRegistry));
+            if (sample != null && meterRegistry != null) {
+                sample.stop(Timer.builder("app.get_entry_by_id.duration")
+                        .tag("operation", "getEntryById")
+                        .tag("entryId", id.toString())
+                        .register(meterRegistry));
+            }
             MDC.clear();
         }
     }
     
     public Entry createEntry(Entry entry) {
+        initMetrics(); // Initialize metrics if needed
+        
         String traceId = generateTraceId();
         MDC.put("traceId", traceId);
         
-        Timer.Sample sample = Timer.start(meterRegistry);
+        Timer.Sample sample = meterRegistry != null ? Timer.start(meterRegistry) : null;
         
         try {
             logger.info("Creating new entry: amount={}, description={}", 
                 entry.getAmount(), entry.getDescription());
             
-            Entry savedEntry = databaseTimer.record(() -> entryRepository.save(entry));
+            Entry savedEntry = databaseTimer != null ? 
+                databaseTimer.record(() -> entryRepository.save(entry)) : 
+                entryRepository.save(entry);
             
-            entriesCreatedCounter.increment();
+            if (entriesCreatedCounter != null) entriesCreatedCounter.increment();
             logger.info("Inserted entry with ID: {}", savedEntry.getId());
             
             // Clear the cache because data changed
@@ -407,23 +425,29 @@ public class EntryService {
             logger.error("Error creating entry", e);
             throw e;
         } finally {
-            sample.stop(Timer.builder("app.create_entry.duration")
-                    .tag("operation", "createEntry")
-                    .register(meterRegistry));
+            if (sample != null && meterRegistry != null) {
+                sample.stop(Timer.builder("app.create_entry.duration")
+                        .tag("operation", "createEntry")
+                        .register(meterRegistry));
+            }
             MDC.clear();
         }
     }
     
     public Entry updateEntry(Long id, Entry entryDetails) {
+        initMetrics(); // Initialize metrics if needed
+        
         String traceId = generateTraceId();
         MDC.put("traceId", traceId);
         
-        Timer.Sample sample = Timer.start(meterRegistry);
+        Timer.Sample sample = meterRegistry != null ? Timer.start(meterRegistry) : null;
         
         try {
             logger.info("Updating entry with ID: {}", id);
             
-            Optional<Entry> optionalEntry = databaseTimer.record(() -> entryRepository.findById(id));
+            Optional<Entry> optionalEntry = databaseTimer != null ? 
+                databaseTimer.record(() -> entryRepository.findById(id)) : 
+                entryRepository.findById(id);
             
             if (optionalEntry.isPresent()) {
                 Entry existingEntry = optionalEntry.get();
@@ -431,8 +455,11 @@ public class EntryService {
                 existingEntry.setDescription(entryDetails.getDescription());
                 existingEntry.setDate(entryDetails.getDate());
                 
-                Entry updatedEntry = databaseTimer.record(() -> entryRepository.save(existingEntry));
-                entriesUpdatedCounter.increment();
+                Entry updatedEntry = databaseTimer != null ? 
+                    databaseTimer.record(() -> entryRepository.save(existingEntry)) : 
+                    entryRepository.save(existingEntry);
+                
+                if (entriesUpdatedCounter != null) entriesUpdatedCounter.increment();
                 
                 logger.info("Updated entry with ID: {}", id);
                 
@@ -450,28 +477,39 @@ public class EntryService {
             logger.error("Error updating entry with ID: {}", id, e);
             throw e;
         } finally {
-            sample.stop(Timer.builder("app.update_entry.duration")
-                    .tag("operation", "updateEntry")
-                    .tag("entryId", id.toString())
-                    .register(meterRegistry));
+            if (sample != null && meterRegistry != null) {
+                sample.stop(Timer.builder("app.update_entry.duration")
+                        .tag("operation", "updateEntry")
+                        .tag("entryId", id.toString())
+                        .register(meterRegistry));
+            }
             MDC.clear();
         }
     }
     
     public boolean deleteEntry(Long id) {
+        initMetrics(); // Initialize metrics if needed
+        
         String traceId = generateTraceId();
         MDC.put("traceId", traceId);
         
-        Timer.Sample sample = Timer.start(meterRegistry);
+        Timer.Sample sample = meterRegistry != null ? Timer.start(meterRegistry) : null;
         
         try {
             logger.info("Deleting entry with ID: {}", id);
             
-            Optional<Entry> entry = databaseTimer.record(() -> entryRepository.findById(id));
+            Optional<Entry> entry = databaseTimer != null ? 
+                databaseTimer.record(() -> entryRepository.findById(id)) : 
+                entryRepository.findById(id);
             
             if (entry.isPresent()) {
-                databaseTimer.record(() -> entryRepository.deleteById(id));
-                entriesDeletedCounter.increment();
+                if (databaseTimer != null) {
+                    databaseTimer.record(() -> entryRepository.deleteById(id));
+                } else {
+                    entryRepository.deleteById(id);
+                }
+                
+                if (entriesDeletedCounter != null) entriesDeletedCounter.increment();
                 
                 logger.info("Deleted entry with ID: {}", id);
                 
@@ -489,10 +527,12 @@ public class EntryService {
             logger.error("Error deleting entry with ID: {}", id, e);
             throw e;
         } finally {
-            sample.stop(Timer.builder("app.delete_entry.duration")
-                    .tag("operation", "deleteEntry")
-                    .tag("entryId", id.toString())
-                    .register(meterRegistry));
+            if (sample != null && meterRegistry != null) {
+                sample.stop(Timer.builder("app.delete_entry.duration")
+                        .tag("operation", "deleteEntry")
+                        .tag("entryId", id.toString())
+                        .register(meterRegistry));
+            }
             MDC.clear();
         }
     }
@@ -503,7 +543,7 @@ public class EntryService {
             logger.info("Cache cleared for {}", ALL_ENTRIES_CACHE_KEY);
         } catch (Exception e) {
             logger.error("Error clearing all entries cache", e);
-            redisErrorCounter.increment();
+            if (redisErrorCounter != null) redisErrorCounter.increment();
         }
     }
     
@@ -514,7 +554,7 @@ public class EntryService {
             logger.info("Cache cleared for {}", cacheKey);
         } catch (Exception e) {
             logger.error("Error clearing entry cache for ID: {}", id, e);
-            redisErrorCounter.increment();
+            if (redisErrorCounter != null) redisErrorCounter.increment();
         }
     }
     
@@ -526,7 +566,7 @@ public class EntryService {
             logger.info("All caches cleared");
         } catch (Exception e) {
             logger.error("Error clearing all caches", e);
-            redisErrorCounter.increment();
+            if (redisErrorCounter != null) redisErrorCounter.increment();
         }
     }
     
