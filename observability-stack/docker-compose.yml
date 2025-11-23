@@ -33,8 +33,9 @@ services:
       - crud
 
   # Grafana
-  container_name: grafana
+  
   grafana:
+    container_name: grafana
     image: grafana/grafana:latest
     ports:
       - "3000:3000"
