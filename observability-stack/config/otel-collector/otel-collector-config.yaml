@@ -10,11 +10,6 @@ exporters:
   prometheus:
     endpoint: "0.0.0.0:8889"
   
-  jaeger:
-    endpoint: jaeger:14250
-    tls:
-      insecure: true
-  
   elasticsearch:
     endpoints: ["http://elasticsearch:9200"]
   
@@ -25,10 +20,6 @@ processors:
 
 service:
   pipelines:
-    traces:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [jaeger, debug]
     metrics:
       receivers: [otlp]
       processors: [batch]
