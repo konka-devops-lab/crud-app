@@ -25,7 +25,7 @@ services:
       DB_USER: crud
       DB_PASSWORD: CrudApp@1
       REDIS_HOST: crud-redis
-      REDIS_SSL: "false"
+      REDIS_SSL: "true"
     ports:
       - "8080:8080"
     depends_on:
