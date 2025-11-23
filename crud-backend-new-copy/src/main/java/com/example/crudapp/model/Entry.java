@@ -91,9 +91,9 @@ public class Entry {
         return "Entry{" +
                 "id=" + id +
                 ", amount=" + amount +
-                ", description='" + description + '\'' +
+                ", description='" + description + '\'' //+
                 // ========== RELEASE 2.0 - START (Include Date in toString) ==========
-                ", date=" + date +
+                // ", date=" + date +
                 // ========== RELEASE 2.0 - END ==========
                 '}';
     }

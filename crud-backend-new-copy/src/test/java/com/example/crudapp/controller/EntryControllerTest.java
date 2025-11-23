@@ -36,18 +36,18 @@ class EntryControllerTest {
     private Entry testEntry;
     private List<Entry> testEntries;
 
-    @BeforeEach
-    void setUp() {
-        // ========== RELEASE 2.0 - START (Entry with Date) ==========
-        testEntry = new Entry(100.0, "Test groceries", LocalDate.of(2024, 1, 15));
-        testEntry.setId(1L);
+    // @BeforeEach
+    // void setUp() {
+    //     // ========== RELEASE 2.0 - START (Entry with Date) ==========
+    //     testEntry = new Entry(100.0, "Test groceries", LocalDate.of(2024, 1, 15));
+    //     testEntry.setId(1L);
         
-        testEntries = Arrays.asList(
-            new Entry(100.0, "Groceries", LocalDate.of(2024, 1, 15)),
-            new Entry(200.0, "Rent", LocalDate.of(2024, 1, 1))
-        );
-        // ========== RELEASE 2.0 - END ==========
-    }
+    //     testEntries = Arrays.asList(
+    //         new Entry(100.0, "Groceries", LocalDate.of(2024, 1, 15)),
+    //         new Entry(200.0, "Rent", LocalDate.of(2024, 1, 1))
+    //     );
+    //     // ========== RELEASE 2.0 - END ==========
+    // }
 
     // ========== RELEASE 1.0 - START (Basic GET Operations Tests) ==========
     @Test
@@ -73,9 +73,9 @@ class EntryControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.amount").value(100.0))
                 .andExpect(jsonPath("$.description").value("Test groceries"))
-                // ========== RELEASE 2.0 - START (Date Field Check) ==========
-                .andExpect(jsonPath("$.date").value("2024-01-15"));
-                // ========== RELEASE 2.0 - END ==========
+                // // ========== RELEASE 2.0 - START (Date Field Check) ==========
+                // .andExpect(jsonPath("$.date").value("2024-01-15"));
+                // // ========== RELEASE 2.0 - END ==========
     }
 
     @Test
@@ -130,19 +130,19 @@ class EntryControllerTest {
     }
     // ========== RELEASE 1.0 - END ==========
 
-    // ========== RELEASE 2.0 - START (Date Field Validation Tests) ==========
-    @Test
-    void createEntry_ShouldReturn400WhenMissingDate() throws Exception {
-        // Arrange
-        String invalidJson = "{\"amount\": 100.0, \"description\": \"Valid description\"}";
+    // // ========== RELEASE 2.0 - START (Date Field Validation Tests) ==========
+    // @Test
+    // void createEntry_ShouldReturn400WhenMissingDate() throws Exception {
+    //     // Arrange
+    //     String invalidJson = "{\"amount\": 100.0, \"description\": \"Valid description\"}";
 
-        // Act & Assert
-        mockMvc.perform(post("/api/entries")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(invalidJson))
-                .andExpect(status().isBadRequest());
-    }
-    // ========== RELEASE 2.0 - END ==========
+    //     // Act & Assert
+    //     mockMvc.perform(post("/api/entries")
+    //             .contentType(MediaType.APPLICATION_JSON)
+    //             .content(invalidJson))
+    //             .andExpect(status().isBadRequest());
+    // }
+    // // ========== RELEASE 2.0 - END ==========
 
     // ========== RELEASE 1.0 - START (Additional Validation Tests) ==========
     @Test
@@ -158,51 +158,51 @@ class EntryControllerTest {
     }
     // ========== RELEASE 1.0 - END ==========
 
-    // ========== RELEASE 3.0 - START (Update Functionality Tests) ==========
-    @Test
-    void updateEntry_ShouldUpdateEntry() throws Exception {
-        // Arrange
-        Entry updatedEntry = new Entry(200.0, "Updated description", LocalDate.of(2024, 1, 16));
-        testEntry.setAmount(200.0);
-        testEntry.setDescription("Updated description");
+    // // ========== RELEASE 3.0 - START (Update Functionality Tests) ==========
+    // @Test
+    // void updateEntry_ShouldUpdateEntry() throws Exception {
+    //     // Arrange
+    //     Entry updatedEntry = new Entry(200.0, "Updated description", LocalDate.of(2024, 1, 16));
+    //     testEntry.setAmount(200.0);
+    //     testEntry.setDescription("Updated description");
         
-        when(entryService.updateEntry(eq(1L), any(Entry.class))).thenReturn(testEntry);
+    //     when(entryService.updateEntry(eq(1L), any(Entry.class))).thenReturn(testEntry);
 
-        // Act & Assert
-        mockMvc.perform(put("/api/entries/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatedEntry)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.amount").value(200.0))
-                .andExpect(jsonPath("$.description").value("Updated description"));
-    }
+    //     // Act & Assert
+    //     mockMvc.perform(put("/api/entries/1")
+    //             .contentType(MediaType.APPLICATION_JSON)
+    //             .content(objectMapper.writeValueAsString(updatedEntry)))
+    //             .andExpect(status().isOk())
+    //             .andExpect(jsonPath("$.amount").value(200.0))
+    //             .andExpect(jsonPath("$.description").value("Updated description"));
+    // }
 
-    @Test
-    void updateEntry_ShouldReturn400WhenMissingFields() throws Exception {
-        // Arrange
-        String invalidJson = "{\"description\": \"\", \"date\": \"2024-01-15\"}";
+    // @Test
+    // void updateEntry_ShouldReturn400WhenMissingFields() throws Exception {
+    //     // Arrange
+    //     String invalidJson = "{\"description\": \"\", \"date\": \"2024-01-15\"}";
 
-        // Act & Assert
-        mockMvc.perform(put("/api/entries/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(invalidJson))
-                .andExpect(status().isBadRequest());
-    }
+    //     // Act & Assert
+    //     mockMvc.perform(put("/api/entries/1")
+    //             .contentType(MediaType.APPLICATION_JSON)
+    //             .content(invalidJson))
+    //             .andExpect(status().isBadRequest());
+    // }
 
-    @Test
-    void updateEntry_ShouldReturn404WhenEntryNotFound() throws Exception {
-        // Arrange
-        Entry updatedEntry = new Entry(200.0, "Updated", LocalDate.of(2024, 1, 16));
-        when(entryService.updateEntry(eq(1L), any(Entry.class))).thenReturn(null);
+    // @Test
+    // void updateEntry_ShouldReturn404WhenEntryNotFound() throws Exception {
+    //     // Arrange
+    //     Entry updatedEntry = new Entry(200.0, "Updated", LocalDate.of(2024, 1, 16));
+    //     when(entryService.updateEntry(eq(1L), any(Entry.class))).thenReturn(null);
 
-        // Act & Assert
-        mockMvc.perform(put("/api/entries/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatedEntry)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Entry not found"));
-    }
-    // ========== RELEASE 3.0 - END ==========
+    //     // Act & Assert
+    //     mockMvc.perform(put("/api/entries/1")
+    //             .contentType(MediaType.APPLICATION_JSON)
+    //             .content(objectMapper.writeValueAsString(updatedEntry)))
+    //             .andExpect(status().isNotFound())
+    //             .andExpect(jsonPath("$.error").value("Entry not found"));
+    // }
+    // // ========== RELEASE 3.0 - END ==========
 
     // ========== RELEASE 1.0 - START (Delete Operations Tests) ==========
     @Test

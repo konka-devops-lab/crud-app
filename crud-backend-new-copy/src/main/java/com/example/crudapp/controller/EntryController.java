@@ -68,13 +68,13 @@ public class EntryController {
             }
             // ========== RELEASE 1.0 - END ==========
             
-            // ========== RELEASE 2.0 - START (Enhanced Validation with Date) ==========
-            if (entry.getDate() == null) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Date is required");
-                return ResponseEntity.badRequest().body(error);
-            }
-            // ========== RELEASE 2.0 - END ==========
+            // // ========== RELEASE 2.0 - START (Enhanced Validation with Date) ==========
+            // if (entry.getDate() == null) {
+            //     Map<String, String> error = new HashMap<>();
+            //     error.put("error", "Date is required");
+            //     return ResponseEntity.badRequest().body(error);
+            // }
+            // // ========== RELEASE 2.0 - END ==========
             
             Entry savedEntry = entryService.createEntry(entry);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedEntry);
@@ -88,45 +88,45 @@ public class EntryController {
     }
     // ========== RELEASE 1.0 - END ==========
     
-    // ========== RELEASE 3.0 - START (Update Functionality) ==========
-    @PutMapping("/entries/{id}")
-    public ResponseEntity<?> updateEntry(@PathVariable Long id, @Valid @RequestBody Entry entryDetails) {
-        try {
-            // ========== RELEASE 1.0 - START (Basic Validation) ==========
-            if (entryDetails.getAmount() == null || entryDetails.getDescription() == null || 
-                entryDetails.getDescription().trim().isEmpty()) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Amount and description are required");
-                return ResponseEntity.badRequest().body(error);
-            }
-            // ========== RELEASE 1.0 - END ==========
+    // // ========== RELEASE 3.0 - START (Update Functionality) ==========
+    // @PutMapping("/entries/{id}")
+    // public ResponseEntity<?> updateEntry(@PathVariable Long id, @Valid @RequestBody Entry entryDetails) {
+    //     try {
+    //         // ========== RELEASE 1.0 - START (Basic Validation) ==========
+    //         if (entryDetails.getAmount() == null || entryDetails.getDescription() == null || 
+    //             entryDetails.getDescription().trim().isEmpty()) {
+    //             Map<String, String> error = new HashMap<>();
+    //             error.put("error", "Amount and description are required");
+    //             return ResponseEntity.badRequest().body(error);
+    //         }
+    //         // ========== RELEASE 1.0 - END ==========
             
-            // ========== RELEASE 2.0 - START (Enhanced Validation with Date) ==========
-            if (entryDetails.getDate() == null) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Date is required");
-                return ResponseEntity.badRequest().body(error);
-            }
-            // ========== RELEASE 2.0 - END ==========
+    //         // ========== RELEASE 2.0 - START (Enhanced Validation with Date) ==========
+    //         if (entryDetails.getDate() == null) {
+    //             Map<String, String> error = new HashMap<>();
+    //             error.put("error", "Date is required");
+    //             return ResponseEntity.badRequest().body(error);
+    //         }
+    //         // ========== RELEASE 2.0 - END ==========
             
-            Entry updatedEntry = entryService.updateEntry(id, entryDetails);
+    //         Entry updatedEntry = entryService.updateEntry(id, entryDetails);
             
-            if (updatedEntry != null) {
-                return ResponseEntity.ok(updatedEntry);
-            } else {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Entry not found");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-            }
+    //         if (updatedEntry != null) {
+    //             return ResponseEntity.ok(updatedEntry);
+    //         } else {
+    //             Map<String, String> error = new HashMap<>();
+    //             error.put("error", "Entry not found");
+    //             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    //         }
             
-        } catch (Exception e) {
-            logger.error("Error updating entry with id: " + id, e);
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Failed to update entry");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-        }
-    }
-    // ========== RELEASE 3.0 - END ==========
+    //     } catch (Exception e) {
+    //         logger.error("Error updating entry with id: " + id, e);
+    //         Map<String, String> error = new HashMap<>();
+    //         error.put("error", "Failed to update entry");
+    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    //     }
+    // }
+    // // ========== RELEASE 3.0 - END ==========
     
     // ========== RELEASE 1.0 - START (Delete Operations) ==========
     @DeleteMapping("/entries/{id}")

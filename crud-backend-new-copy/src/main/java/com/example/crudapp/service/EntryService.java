@@ -134,35 +134,35 @@ public class EntryService {
     }
     // ========== RELEASE 1.0 - END ==========
     
-    // ========== RELEASE 3.0 - START (Update Functionality) ==========
-    public Entry updateEntry(Long id, Entry entryDetails) {
-        Optional<Entry> optionalEntry = entryRepository.findById(id);
+    // // ========== RELEASE 3.0 - START (Update Functionality) ==========
+    // public Entry updateEntry(Long id, Entry entryDetails) {
+    //     Optional<Entry> optionalEntry = entryRepository.findById(id);
         
-        if (optionalEntry.isPresent()) {
-            Entry existingEntry = optionalEntry.get();
-            // ========== RELEASE 1.0 - START (Basic Fields Update) ==========
-            existingEntry.setAmount(entryDetails.getAmount());
-            existingEntry.setDescription(entryDetails.getDescription());
-            // ========== RELEASE 1.0 - END ==========
+    //     if (optionalEntry.isPresent()) {
+    //         Entry existingEntry = optionalEntry.get();
+    //         // ========== RELEASE 1.0 - START (Basic Fields Update) ==========
+    //         existingEntry.setAmount(entryDetails.getAmount());
+    //         existingEntry.setDescription(entryDetails.getDescription());
+    //         // ========== RELEASE 1.0 - END ==========
             
-            // ========== RELEASE 2.0 - START (Date Field Update) ==========
-            existingEntry.setDate(entryDetails.getDate());
-            // ========== RELEASE 2.0 - END ==========
+    //         // ========== RELEASE 2.0 - START (Date Field Update) ==========
+    //         existingEntry.setDate(entryDetails.getDate());
+    //         // ========== RELEASE 2.0 - END ==========
             
-            Entry updatedEntry = entryRepository.save(existingEntry);
-            logger.info("Updated entry with ID: {}", id);
+    //         Entry updatedEntry = entryRepository.save(existingEntry);
+    //         logger.info("Updated entry with ID: {}", id);
             
-            // Clear relevant caches because data changed
-            clearAllEntriesCache();
-            clearEntryCache(id);
+    //         // Clear relevant caches because data changed
+    //         clearAllEntriesCache();
+    //         clearEntryCache(id);
             
-            return updatedEntry;
-        }
+    //         return updatedEntry;
+    //     }
         
-        logger.warn("Update failed: Entry with ID {} not found", id);
-        return null;
-    }
-    // ========== RELEASE 3.0 - END ==========
+    //     logger.warn("Update failed: Entry with ID {} not found", id);
+    //     return null;
+    // }
+    // // ========== RELEASE 3.0 - END ==========
     
     // ========== ALL RELEASES - START (Cache Management - Available in all versions) ==========
     private void clearAllEntriesCache() {
