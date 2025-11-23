@@ -12,8 +12,10 @@ exporters:
   
   elasticsearch:
     endpoints: ["http://elasticsearch:9200"]
+    logs_index: "spring-logs"
   
   debug:
+    verbosity: detailed
 
 processors:
   batch:

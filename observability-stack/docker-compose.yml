@@ -5,7 +5,7 @@ networks:
 services:
   # OpenTelemetry Collector
   otel-collector:
-    image: otel/opentelemetry-collector:0.88.0
+    image: otel/opentelemetry-collector-contrib:0.88.0
     container_name: otel-collector
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
