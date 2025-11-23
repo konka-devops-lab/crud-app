@@ -72,7 +72,7 @@ class EntryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.amount").value(100.0))
-                .andExpect(jsonPath("$.description").value("Test groceries"))
+                .andExpect(jsonPath("$.description").value("Test groceries"));
                 // // ========== RELEASE 2.0 - START (Date Field Check) ==========
                 // .andExpect(jsonPath("$.date").value("2024-01-15"));
                 // // ========== RELEASE 2.0 - END ==========
