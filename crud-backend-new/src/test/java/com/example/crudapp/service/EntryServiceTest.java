@@ -215,6 +215,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -229,6 +230,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -249,8 +251,8 @@ class EntryServiceTest {
     @Mock
     private ObjectMapper objectMapper;
 
-    @Mock
-    private MeterRegistry meterRegistry;
+    // Use a real MeterRegistry instead of mock for tests
+    private MeterRegistry meterRegistry = new SimpleMeterRegistry();
 
     @InjectMocks
     private EntryService entryService;
@@ -267,6 +269,13 @@ class EntryServiceTest {
             new Entry(100.0, "Groceries", LocalDate.of(2024, 1, 15)),
             new Entry(200.0, "Rent", LocalDate.of(2024, 1, 1))
         );
+        
+        // Manually set the meterRegistry since @InjectMocks won't handle it properly
+        entryService = new EntryService();
+        entryService.entryRepository = entryRepository;
+        entryService.redisTemplate = redisTemplate;
+        entryService.objectMapper = objectMapper;
+        entryService.meterRegistry = meterRegistry;
     }
 
     @Test
@@ -288,7 +297,7 @@ class EntryServiceTest {
     }
 
     @Test
-    void getAllEntries_ShouldFallbackToDatabaseWhenRedisFails() {
+    void getAllEntries_ShouldFallbackToDatabaseWhenRedisFails() throws Exception {
         // Arrange
         when(redisTemplate.opsForValue()).thenThrow(new RuntimeException("Redis down"));
         when(entryRepository.findAll()).thenReturn(testEntries);
@@ -300,6 +309,23 @@ class EntryServiceTest {
         assertNotNull(result);
         assertEquals(2, result.size());
         verify(entryRepository).findAll();
+    }
+
+    @Test
+    void getAllEntries_ShouldReturnEntriesFromCacheWhenAvailable() throws Exception {
+        // Arrange
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get("all_entries")).thenReturn("cached-json");
+        when(objectMapper.readValue(eq("cached-json"), any())).thenReturn(testEntries);
+
+        // Act
+        List<Entry> result = entryService.getAllEntries();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(entryRepository, never()).findAll();
+        verify(valueOperations).get("all_entries");
     }
 
     @Test
@@ -321,7 +347,24 @@ class EntryServiceTest {
     }
 
     @Test
-    void getEntryById_ShouldReturnNullWhenEntryNotFound() {
+    void getEntryById_ShouldReturnEntryFromCacheWhenAvailable() throws Exception {
+        // Arrange
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get("entry_1")).thenReturn("cached-json");
+        when(objectMapper.readValue("cached-json", Entry.class)).thenReturn(testEntry);
+
+        // Act
+        Entry result = entryService.getEntryById(1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        verify(entryRepository, never()).findById(1L);
+        verify(valueOperations).get("entry_1");
+    }
+
+    @Test
+    void getEntryById_ShouldReturnNullWhenEntryNotFound() throws Exception {
         // Arrange
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get("entry_1")).thenReturn(null);
@@ -335,10 +378,28 @@ class EntryServiceTest {
     }
 
     @Test
+    void getEntryById_ShouldFallbackToDatabaseWhenJsonProcessingFails() throws Exception {
+        // Arrange
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get("entry_1")).thenReturn("invalid-json");
+        when(objectMapper.readValue("invalid-json", Entry.class)).thenThrow(new JsonProcessingException("Invalid JSON") {});
+        when(entryRepository.findById(1L)).thenReturn(Optional.of(testEntry));
+
+        // Act
+        Entry result = entryService.getEntryById(1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        verify(entryRepository).findById(1L);
+    }
+
+    @Test
     void createEntry_ShouldSaveEntryAndClearCache() {
         // Arrange
         Entry newEntry = new Entry(150.0, "New entry", LocalDate.of(2024, 1, 20));
         when(entryRepository.save(newEntry)).thenReturn(testEntry);
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         // Act
         Entry result = entryService.createEntry(newEntry);
@@ -356,6 +417,7 @@ class EntryServiceTest {
         Entry updatedDetails = new Entry(200.0, "Updated description", LocalDate.of(2024, 1, 16));
         when(entryRepository.findById(1L)).thenReturn(Optional.of(testEntry));
         when(entryRepository.save(testEntry)).thenReturn(testEntry);
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         // Act
         Entry result = entryService.updateEntry(1L, updatedDetails);
@@ -387,6 +449,7 @@ class EntryServiceTest {
     void deleteEntry_ShouldDeleteEntryAndClearCache() {
         // Arrange
         when(entryRepository.findById(1L)).thenReturn(Optional.of(testEntry));
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         // Act
         boolean result = entryService.deleteEntry(1L);
@@ -418,5 +481,17 @@ class EntryServiceTest {
 
         // Assert
         verify(redisTemplate).delete("all_entries");
+    }
+
+    @Test
+    void clearEntryCache_ShouldClearSpecificEntryCache() {
+        // This tests the private method indirectly through public methods
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        
+        // Act - any operation that calls clearEntryCache internally
+        entryService.deleteEntry(1L);
+        
+        // Verify that entry-specific cache was cleared
+        verify(redisTemplate).delete("entry_1");
     }
 }
