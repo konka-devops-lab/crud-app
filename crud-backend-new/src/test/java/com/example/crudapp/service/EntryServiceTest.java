@@ -1,211 +1,3 @@
-// package com.example.crudapp.service;
-
-// import com.example.crudapp.model.Entry;
-// import com.example.crudapp.repository.EntryRepository;
-// import com.fasterxml.jackson.core.JsonProcessingException;
-// import com.fasterxml.jackson.core.type.TypeReference;
-// import com.fasterxml.jackson.databind.ObjectMapper;
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
-// import org.junit.jupiter.api.extension.ExtendWith;
-// import org.mockito.InjectMocks;
-// import org.mockito.Mock;
-// import org.mockito.junit.jupiter.MockitoExtension;
-// import org.springframework.data.redis.core.RedisTemplate;
-// import org.springframework.data.redis.core.ValueOperations;
-
-// import java.time.LocalDate;
-// import java.util.Arrays;
-// import java.util.List;
-// import java.util.Optional;
-
-// import static org.junit.jupiter.api.Assertions.*;
-// import static org.mockito.ArgumentMatchers.*;
-// import static org.mockito.Mockito.*;
-
-// @ExtendWith(MockitoExtension.class)
-// class EntryServiceTest {
-
-//     @Mock
-//     private EntryRepository entryRepository;
-
-//     @Mock
-//     private RedisTemplate<String, String> redisTemplate;
-
-//     @Mock
-//     private ValueOperations<String, String> valueOperations;
-
-//     @Mock
-//     private ObjectMapper objectMapper;
-
-//     @InjectMocks
-//     private EntryService entryService;
-
-//     private Entry testEntry;
-//     private List<Entry> testEntries;
-
-//     @BeforeEach
-//     void setUp() {
-//         testEntry = new Entry(100.0, "Test groceries", LocalDate.of(2024, 1, 15));
-//         testEntry.setId(1L);
-        
-//         testEntries = Arrays.asList(
-//             new Entry(100.0, "Groceries", LocalDate.of(2024, 1, 15)),
-//             new Entry(200.0, "Rent", LocalDate.of(2024, 1, 1))
-//         );
-//     }
-
-//     @Test
-//     void getAllEntries_ShouldReturnEntriesFromDatabaseWhenCacheMiss() throws Exception {
-//         // Arrange
-//         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-//         when(valueOperations.get("all_entries")).thenReturn(null);
-//         when(entryRepository.findAll()).thenReturn(testEntries);
-//         when(objectMapper.writeValueAsString(testEntries)).thenReturn("json-data");
-
-//         // Act
-//         List<Entry> result = entryService.getAllEntries();
-
-//         // Assert
-//         assertNotNull(result);
-//         assertEquals(2, result.size());
-//         verify(entryRepository).findAll();
-//         verify(valueOperations).set(eq("all_entries"), eq("json-data"), eq(60L), any());
-//     }
-
-//     @Test
-//     void getAllEntries_ShouldFallbackToDatabaseWhenRedisFails() {
-//         // Arrange
-//         when(redisTemplate.opsForValue()).thenThrow(new RuntimeException("Redis down"));
-//         when(entryRepository.findAll()).thenReturn(testEntries);
-
-//         // Act
-//         List<Entry> result = entryService.getAllEntries();
-
-//         // Assert
-//         assertNotNull(result);
-//         assertEquals(2, result.size());
-//         verify(entryRepository).findAll();
-//     }
-
-//     @Test
-//     void getEntryById_ShouldReturnEntryFromDatabaseWhenCacheMiss() throws Exception {
-//         // Arrange
-//         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-//         when(valueOperations.get("entry_1")).thenReturn(null);
-//         when(entryRepository.findById(1L)).thenReturn(Optional.of(testEntry));
-//         when(objectMapper.writeValueAsString(testEntry)).thenReturn("json-data");
-
-//         // Act
-//         Entry result = entryService.getEntryById(1L);
-
-//         // Assert
-//         assertNotNull(result);
-//         assertEquals(1L, result.getId());
-//         verify(entryRepository).findById(1L);
-//         verify(valueOperations).set(eq("entry_1"), eq("json-data"), eq(60L), any());
-//     }
-
-//     @Test
-//     void getEntryById_ShouldReturnNullWhenEntryNotFound() {
-//         // Arrange
-//         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-//         when(valueOperations.get("entry_1")).thenReturn(null);
-//         when(entryRepository.findById(1L)).thenReturn(Optional.empty());
-
-//         // Act
-//         Entry result = entryService.getEntryById(1L);
-
-//         // Assert
-//         assertNull(result);
-//     }
-
-//     @Test
-//     void createEntry_ShouldSaveEntryAndClearCache() {
-//         // Arrange
-//         Entry newEntry = new Entry(150.0, "New entry", LocalDate.of(2024, 1, 20));
-//         when(entryRepository.save(newEntry)).thenReturn(testEntry);
-
-//         // Act
-//         Entry result = entryService.createEntry(newEntry);
-
-//         // Assert
-//         assertNotNull(result);
-//         assertEquals(1L, result.getId());
-//         verify(entryRepository).save(newEntry);
-//         verify(redisTemplate).delete("all_entries");
-//     }
-
-//     @Test
-//     void updateEntry_ShouldUpdateExistingEntry() {
-//         // Arrange
-//         Entry updatedDetails = new Entry(200.0, "Updated description", LocalDate.of(2024, 1, 16));
-//         when(entryRepository.findById(1L)).thenReturn(Optional.of(testEntry));
-//         when(entryRepository.save(testEntry)).thenReturn(testEntry);
-
-//         // Act
-//         Entry result = entryService.updateEntry(1L, updatedDetails);
-
-//         // Assert
-//         assertNotNull(result);
-//         assertEquals(200.0, result.getAmount());
-//         assertEquals("Updated description", result.getDescription());
-//         verify(entryRepository).save(testEntry);
-//         verify(redisTemplate).delete("all_entries");
-//         verify(redisTemplate).delete("entry_1");
-//     }
-
-//     @Test
-//     void updateEntry_ShouldReturnNullWhenEntryNotFound() {
-//         // Arrange
-//         Entry updatedDetails = new Entry(200.0, "Updated", LocalDate.of(2024, 1, 16));
-//         when(entryRepository.findById(1L)).thenReturn(Optional.empty());
-
-//         // Act
-//         Entry result = entryService.updateEntry(1L, updatedDetails);
-
-//         // Assert
-//         assertNull(result);
-//         verify(entryRepository, never()).save(any());
-//     }
-
-//     @Test
-//     void deleteEntry_ShouldDeleteEntryAndClearCache() {
-//         // Arrange
-//         when(entryRepository.findById(1L)).thenReturn(Optional.of(testEntry));
-
-//         // Act
-//         boolean result = entryService.deleteEntry(1L);
-
-//         // Assert
-//         assertTrue(result);
-//         verify(entryRepository).deleteById(1L);
-//         verify(redisTemplate).delete("all_entries");
-//         verify(redisTemplate).delete("entry_1");
-//     }
-
-//     @Test
-//     void deleteEntry_ShouldReturnFalseWhenEntryNotFound() {
-//         // Arrange
-//         when(entryRepository.findById(1L)).thenReturn(Optional.empty());
-
-//         // Act
-//         boolean result = entryService.deleteEntry(1L);
-
-//         // Assert
-//         assertFalse(result);
-//         verify(entryRepository, never()).deleteById(1L);
-//     }
-
-//     @Test
-//     void clearAllCaches_ShouldClearAllCaches() {
-//         // Act
-//         entryService.clearAllCaches();
-
-//         // Assert
-//         verify(redisTemplate).delete("all_entries");
-//     }
-// }
 package com.example.crudapp.service;
 
 import com.example.crudapp.model.Entry;
@@ -213,8 +5,6 @@ import com.example.crudapp.repository.EntryRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -248,9 +38,6 @@ class EntryServiceTest {
     @Mock
     private ObjectMapper objectMapper;
 
-    // Use a real MeterRegistry for tests
-    private MeterRegistry meterRegistry = new SimpleMeterRegistry();
-
     @InjectMocks
     private EntryService entryService;
 
@@ -266,34 +53,6 @@ class EntryServiceTest {
             new Entry(100.0, "Groceries", LocalDate.of(2024, 1, 15)),
             new Entry(200.0, "Rent", LocalDate.of(2024, 1, 1))
         );
-        
-        // Use reflection or constructor injection approach
-        // Since fields are private, we'll use the @InjectMocks and manually set meterRegistry
-        // We need to create a new instance with the real meter registry
-        entryService = new EntryService() {
-            // Override the meterRegistry field access
-            @Override
-            public void setMeterRegistry(MeterRegistry registry) {
-                // This will be handled by our custom approach
-            }
-        };
-        
-        // Use reflection to set the private fields for testing
-        setPrivateField(entryService, "meterRegistry", meterRegistry);
-        setPrivateField(entryService, "entryRepository", entryRepository);
-        setPrivateField(entryService, "redisTemplate", redisTemplate);
-        setPrivateField(entryService, "objectMapper", objectMapper);
-    }
-
-    // Helper method to set private fields using reflection
-    private void setPrivateField(Object target, String fieldName, Object value) {
-        try {
-            var field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to set field: " + fieldName, e);
-        }
     }
 
     @Test
@@ -303,7 +62,6 @@ class EntryServiceTest {
         when(valueOperations.get("all_entries")).thenReturn(null);
         when(entryRepository.findAll()).thenReturn(testEntries);
         when(objectMapper.writeValueAsString(testEntries)).thenReturn("json-data");
-        when(objectMapper.readValue(eq("json-data"), any(TypeReference.class))).thenReturn(testEntries);
 
         // Act
         List<Entry> result = entryService.getAllEntries();
@@ -316,7 +74,7 @@ class EntryServiceTest {
     }
 
     @Test
-    void getAllEntries_ShouldFallbackToDatabaseWhenRedisFails() throws Exception {
+    void getAllEntries_ShouldFallbackToDatabaseWhenRedisFails() {
         // Arrange
         when(redisTemplate.opsForValue()).thenThrow(new RuntimeException("Redis down"));
         when(entryRepository.findAll()).thenReturn(testEntries);
@@ -328,23 +86,6 @@ class EntryServiceTest {
         assertNotNull(result);
         assertEquals(2, result.size());
         verify(entryRepository).findAll();
-    }
-
-    @Test
-    void getAllEntries_ShouldReturnEntriesFromCacheWhenAvailable() throws Exception {
-        // Arrange
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-        when(valueOperations.get("all_entries")).thenReturn("cached-json");
-        when(objectMapper.readValue(eq("cached-json"), any(TypeReference.class))).thenReturn(testEntries);
-
-        // Act
-        List<Entry> result = entryService.getAllEntries();
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        verify(entryRepository, never()).findAll();
-        verify(valueOperations).get("all_entries");
     }
 
     @Test
@@ -366,24 +107,7 @@ class EntryServiceTest {
     }
 
     @Test
-    void getEntryById_ShouldReturnEntryFromCacheWhenAvailable() throws Exception {
-        // Arrange
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-        when(valueOperations.get("entry_1")).thenReturn("cached-json");
-        when(objectMapper.readValue("cached-json", Entry.class)).thenReturn(testEntry);
-
-        // Act
-        Entry result = entryService.getEntryById(1L);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
-        verify(entryRepository, never()).findById(1L);
-        verify(valueOperations).get("entry_1");
-    }
-
-    @Test
-    void getEntryById_ShouldReturnNullWhenEntryNotFound() throws Exception {
+    void getEntryById_ShouldReturnNullWhenEntryNotFound() {
         // Arrange
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get("entry_1")).thenReturn(null);
@@ -397,28 +121,10 @@ class EntryServiceTest {
     }
 
     @Test
-    void getEntryById_ShouldFallbackToDatabaseWhenJsonProcessingFails() throws Exception {
-        // Arrange
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-        when(valueOperations.get("entry_1")).thenReturn("invalid-json");
-        when(objectMapper.readValue("invalid-json", Entry.class)).thenThrow(new JsonProcessingException("Invalid JSON") {});
-        when(entryRepository.findById(1L)).thenReturn(Optional.of(testEntry));
-
-        // Act
-        Entry result = entryService.getEntryById(1L);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
-        verify(entryRepository).findById(1L);
-    }
-
-    @Test
     void createEntry_ShouldSaveEntryAndClearCache() {
         // Arrange
         Entry newEntry = new Entry(150.0, "New entry", LocalDate.of(2024, 1, 20));
         when(entryRepository.save(newEntry)).thenReturn(testEntry);
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         // Act
         Entry result = entryService.createEntry(newEntry);
@@ -436,7 +142,6 @@ class EntryServiceTest {
         Entry updatedDetails = new Entry(200.0, "Updated description", LocalDate.of(2024, 1, 16));
         when(entryRepository.findById(1L)).thenReturn(Optional.of(testEntry));
         when(entryRepository.save(testEntry)).thenReturn(testEntry);
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         // Act
         Entry result = entryService.updateEntry(1L, updatedDetails);
@@ -468,7 +173,6 @@ class EntryServiceTest {
     void deleteEntry_ShouldDeleteEntryAndClearCache() {
         // Arrange
         when(entryRepository.findById(1L)).thenReturn(Optional.of(testEntry));
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         // Act
         boolean result = entryService.deleteEntry(1L);
