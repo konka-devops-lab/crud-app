@@ -4,7 +4,7 @@ USE crud_app;
 CREATE TABLE entries (
   id INT AUTO_INCREMENT PRIMARY KEY,
   amount DECIMAL(10,2) NOT NULL,
-  description VARCHAR(255) NOT NULL,
+  description VARCHAR(255) NOT NULL
   -- date DATE NOT NULL
 );
 
