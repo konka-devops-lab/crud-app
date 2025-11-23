@@ -25,11 +25,11 @@ public class Entry {
     private String description;
     // ========== RELEASE 1.0 - END ==========
     
-    // ========== RELEASE 2.0 - START (Add Date Field) ==========
-    @NotNull(message = "Date is required")
-    @Column(nullable = false)
-    private LocalDate date;
-    // ========== RELEASE 2.0 - END ==========
+    // // ========== RELEASE 2.0 - START (Add Date Field) ==========
+    // @NotNull(message = "Date is required")
+    // @Column(nullable = false)
+    // private LocalDate date;
+    // // ========== RELEASE 2.0 - END ==========
     
     // Default constructor
     public Entry() {}
