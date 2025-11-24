@@ -23,13 +23,13 @@ public class Entry {
     @NotBlank(message = "Description is required")
     @Column(nullable = false)
     private String description;
-    // ========== RELEASE 1.0 - END ==========
+    ========== RELEASE 1.0 - END ==========
     
-    // // ========== RELEASE 2.0 - START (Add Date Field) ==========
-    // @NotNull(message = "Date is required")
-    // @Column(nullable = false)
-    // private LocalDate date;
-    // // ========== RELEASE 2.0 - END ==========
+    // ========== RELEASE 2.0 - START (Add Date Field) ==========
+    @NotNull(message = "Date is required")
+    @Column(nullable = false)
+    private LocalDate date;
+    // ========== RELEASE 2.0 - END ==========
     
     // Default constructor
     public Entry() {}
@@ -41,13 +41,13 @@ public class Entry {
     }
     // ========== RELEASE 1.0 - END ==========
     
-    // // ========== RELEASE 2.0 - START (Enhanced Constructor with Date) ==========
-    // public Entry(Double amount, String description, LocalDate date) {
-    //     this.amount = amount;
-    //     this.description = description;
-    //     this.date = date;
-    // }
-    // // ========== RELEASE 2.0 - END ==========
+    // ========== RELEASE 2.0 - START (Enhanced Constructor with Date) ==========
+    public Entry(Double amount, String description, LocalDate date) {
+        this.amount = amount;
+        this.description = description;
+        this.date = date;
+    }
+    // ========== RELEASE 2.0 - END ==========
     
     // Getters and Setters
     public Long getId() {
@@ -76,15 +76,15 @@ public class Entry {
     }
     // ========== RELEASE 1.0 - END ==========
     
-    // // ========== RELEASE 2.0 - START (Date Getters/Setters) ==========
-    // public LocalDate getDate() {
-    //     return date;
-    // }
+    // ========== RELEASE 2.0 - START (Date Getters/Setters) ==========
+    public LocalDate getDate() {
+        return date;
+    }
     
-    // public void setDate(LocalDate date) {
-    //     this.date = date;
-    // }
-    // // ========== RELEASE 2.0 - END ==========
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+    // ========== RELEASE 2.0 - END ==========
     
     @Override
     public String toString() {
@@ -93,7 +93,7 @@ public class Entry {
                 ", amount=" + amount +
                 ", description='" + description + '\'' +
                 // ========== RELEASE 2.0 - START (Include Date in toString) ==========
-                // ", date=" + date +
+                ", date=" + date +
                 // ========== RELEASE 2.0 - END ==========
                 '}';
     }

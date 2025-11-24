@@ -51,5 +51,3 @@ docker run -d --name crud-frontend \
   --network crud \
   crud-frontend:latest
 ```
-
-

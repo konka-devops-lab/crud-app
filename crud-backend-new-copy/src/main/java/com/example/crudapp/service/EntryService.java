@@ -31,7 +31,6 @@ public class EntryService {
     @Autowired
     private ObjectMapper objectMapper;
     
-    // ========== RELEASE 1.0 - START (Basic CRUD Operations) ==========
     public List<Entry> getAllEntries() {
         try {
             // Try to get from cache first
@@ -132,39 +131,35 @@ public class EntryService {
         logger.warn("Delete failed: Entry with ID {} not found", id);
         return false;
     }
-    // ========== RELEASE 1.0 - END ==========
+
     
-    // // ========== RELEASE 3.0 - START (Update Functionality) ==========
-    // public Entry updateEntry(Long id, Entry entryDetails) {
-    //     Optional<Entry> optionalEntry = entryRepository.findById(id);
+    // ========== RELEASE 3.0 - START (Update Functionality) ==========
+    public Entry updateEntry(Long id, Entry entryDetails) {
+        Optional<Entry> optionalEntry = entryRepository.findById(id);
         
-    //     if (optionalEntry.isPresent()) {
-    //         Entry existingEntry = optionalEntry.get();
-    //         // ========== RELEASE 1.0 - START (Basic Fields Update) ==========
-    //         existingEntry.setAmount(entryDetails.getAmount());
-    //         existingEntry.setDescription(entryDetails.getDescription());
-    //         // ========== RELEASE 1.0 - END ==========
+        if (optionalEntry.isPresent()) {
+            Entry existingEntry = optionalEntry.get();
+            existingEntry.setAmount(entryDetails.getAmount());
+            existingEntry.setDescription(entryDetails.getDescription());
+
             
-    //         // ========== RELEASE 2.0 - START (Date Field Update) ==========
-    //         existingEntry.setDate(entryDetails.getDate());
-    //         // ========== RELEASE 2.0 - END ==========
+            existingEntry.setDate(entryDetails.getDate());
             
-    //         Entry updatedEntry = entryRepository.save(existingEntry);
-    //         logger.info("Updated entry with ID: {}", id);
+            Entry updatedEntry = entryRepository.save(existingEntry);
+            logger.info("Updated entry with ID: {}", id);
             
-    //         // Clear relevant caches because data changed
-    //         clearAllEntriesCache();
-    //         clearEntryCache(id);
+            // Clear relevant caches because data changed
+            clearAllEntriesCache();
+            clearEntryCache(id);
             
-    //         return updatedEntry;
-    //     }
+            return updatedEntry;
+        }
         
-    //     logger.warn("Update failed: Entry with ID {} not found", id);
-    //     return null;
-    // }
-    // // ========== RELEASE 3.0 - END ==========
+        logger.warn("Update failed: Entry with ID {} not found", id);
+        return null;
+    }
+    // ========== RELEASE 3.0 - END ==========
     
-    // ========== ALL RELEASES - START (Cache Management - Available in all versions) ==========
     private void clearAllEntriesCache() {
         try {
             redisTemplate.delete(ALL_ENTRIES_CACHE_KEY);
@@ -184,7 +179,6 @@ public class EntryService {
         }
     }
     
-    // Optional: Method to clear all caches (useful for maintenance)
     public void clearAllCaches() {
         try {
             // Clear all entries cache
@@ -197,5 +191,4 @@ public class EntryService {
             logger.error("Error clearing all caches", e);
         }
     }
-    // ========== ALL RELEASES - END ==========
 }
