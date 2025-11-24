@@ -82,7 +82,7 @@ public class EntryController {
         }
     }
     
-    ========== RELEASE 3.0 - START (Update Functionality) ==========
+    // ========== RELEASE 3.0 - START (Update Functionality) ==========
     @PutMapping("/entries/{id}")
     public ResponseEntity<?> updateEntry(@PathVariable Long id, @Valid @RequestBody Entry entryDetails) {
         try {

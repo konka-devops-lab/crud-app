@@ -15,7 +15,6 @@ public class Entry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    // ========== RELEASE 1.0 - START (Basic Fields) ==========
     @NotNull(message = "Amount is required")
     @Column(nullable = false)
     private Double amount;
@@ -23,7 +22,6 @@ public class Entry {
     @NotBlank(message = "Description is required")
     @Column(nullable = false)
     private String description;
-    ========== RELEASE 1.0 - END ==========
     
     // ========== RELEASE 2.0 - START (Add Date Field) ==========
     @NotNull(message = "Date is required")
@@ -34,12 +32,10 @@ public class Entry {
     // Default constructor
     public Entry() {}
     
-    // ========== RELEASE 1.0 - START (Basic Constructor) ==========
     public Entry(Double amount, String description) {
         this.amount = amount;
         this.description = description;
     }
-    // ========== RELEASE 1.0 - END ==========
     
     // ========== RELEASE 2.0 - START (Enhanced Constructor with Date) ==========
     public Entry(Double amount, String description, LocalDate date) {
@@ -58,7 +54,6 @@ public class Entry {
         this.id = id;
     }
     
-    // ========== RELEASE 1.0 - START (Basic Getters/Setters) ==========
     public Double getAmount() {
         return amount;
     }
@@ -74,7 +69,6 @@ public class Entry {
     public void setDescription(String description) {
         this.description = description;
     }
-    // ========== RELEASE 1.0 - END ==========
     
     // ========== RELEASE 2.0 - START (Date Getters/Setters) ==========
     public LocalDate getDate() {
