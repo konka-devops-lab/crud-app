@@ -132,6 +132,23 @@ public class EntryService {
         return false;
     }
 
+    public void deleteAllEntries() {
+        try {
+            entryRepository.deleteAll();
+            logger.info("Deleted all entries");
+            
+            // Clear all caches
+            clearAllEntriesCache();
+            // Note: In production, you might want to clear all entry_* keys using Redis patterns
+            
+        } catch (Exception e) {
+            logger.error("Error deleting all entries", e);
+            // Still try to clear cache even if DB operation fails
+            clearAllEntriesCache();
+            throw e; // Re-throw to let controller handle it
+        }
+    }
+
     
     // ========== RELEASE 3.0 - START (Update Functionality) ==========
     public Entry updateEntry(Long id, Entry entryDetails) {
