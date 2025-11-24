@@ -222,10 +222,14 @@ class EntryServiceTest {
         // Arrange
         doThrow(new RuntimeException("DB error")).when(entryRepository).deleteAll();
 
-        // Act & Assert - Should not throw exception, should handle gracefully
-        assertDoesNotThrow(() -> entryService.deleteAllEntries());
+        // Act & Assert - Should throw exception since we re-throw it
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            entryService.deleteAllEntries();
+        });
         
-        // Verify cache clearing was still attempted
+        assertEquals("DB error", exception.getMessage());
+        
+        // Verify cache clearing was still attempted despite the exception
         verify(redisTemplate).delete("all_entries");
     }
 }
