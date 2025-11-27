@@ -7,12 +7,12 @@ services:
 
   crud-backend:
     build:
-      context: ../crud-backend
+      context: ../crud-backend-new
       dockerfile: Dockerfile
     image: crud-backend:v1
 
   crud-frontend:
     build:
-      context: ../crud-frontend
+      context: ../crud-frontend-new
       dockerfile: Dockerfile
     image: crud-frontend:v1

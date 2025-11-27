@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Entry, MessageProps } from '../types';
-import { deleteEntry } from '../api/entriesApi';
+import { deleteEntry,deleteAllEntries } from '../api/entriesApi';
 import Message from './Message';
 import { Download } from 'lucide-react';
 
@@ -45,11 +45,19 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
     link.click();
     document.body.removeChild(link);
   };
+  const onDeleteAll = async() => {
+      const response = await  deleteAllEntries();
+      setMessage({ text: 'All Records Deleted Successfully!', type: 'error', visible: true });
+      
+  }
 
   return (
     <div className="flex-grow bg-[#1f4068] rounded-lg shadow-lg p-5 ml-5 max-w-[1000px] flex flex-col relative">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl mt-5">Entries</h2>
+        <button className="flex items-center gap-2 p-2 bg-[#1f78ff] text-white border-none rounded cursor-pointer hover:bg-[#145fc4] transition-colors duration-200" onClick = {onDeleteAll}>
+          Delete All
+        </button>
         <button
           onClick={handleDownload}
           className="flex items-center gap-2 p-2 bg-[#1f78ff] text-white border-none rounded cursor-pointer hover:bg-[#145fc4] transition-colors duration-200"
