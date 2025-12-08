@@ -50,7 +50,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
     }
     try {
       await updateEntry(id, amountValue, descriptionValue, dateValue);
-      setMessage({ text: 'Record updated successfully!', type: 'error', visible: true });
+      setMessage({ text: 'Record updated successfully!', type: 'success', visible: true });
     } catch (error) {
       console.error('Error  updating entry:', error);
       setMessage({ text: 'Failed to update record. Please try again.', type: 'error', visible: true });
