@@ -130,11 +130,9 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                 entries.map((entry) => (
                   <tr key={entry.id}>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.id}</td>
-                    {!enableUpdate ? <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.amount}</td>
-                    <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.description}</td>
-                    <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.date}</td> :
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
-                      <input
+                     !enableUpdate ? {entry.amount} :
+                     <input
                         type="number"
                         id="amount"
                         value={entry.amount}
@@ -143,22 +141,24 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                       />
                     </td>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
-                      <input
+                      !enableUpdate ? {entry.description} : 
+                       <input
                         type="string"
                         id="description"
                         value={entry.description}
                         onChange={(e) => setDescription(e.target.value)}
                         className="my-3 p-3.5 w-full text-base border border-[#162447] rounded bg-[#1b1b2f] text-white focus:border-[#1f78ff] focus:outline-none"
                       />
-                    </td>
+                      </td>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
+                      {!enableUpdate ? `${entry.date}` : 
                       <input
                         type="string"
                         id="date"
                         value={entry.date}
                         onChange={(e) => setDate(e.target.value)}
                         className="my-3 p-3.5 w-full text-base border border-[#162447] rounded bg-[#1b1b2f] text-white focus:border-[#1f78ff] focus:outline-none"
-                      />
+                      />}
                     </td>
                     }
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
