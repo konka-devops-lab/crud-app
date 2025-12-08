@@ -128,7 +128,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                   <tr key={entry.id}>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.id}</td>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
-                     {(!enableUpdate && entry.id === uniqueId) ? `${entry.amount}` :
+                     {(!enableUpdate && entry.id !== uniqueId) ? `${entry.amount}` :
                      <input
                         type="number"
                         id="amount"
@@ -139,7 +139,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                      />}
                     </td>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
-                      {(!enableUpdate && entry.id === uniqueId) ? `${entry.description}` : 
+                      {(!enableUpdate && entry.id !== uniqueId) ? `${entry.description}` : 
                        <input
                         type="string"
                         id="description"
@@ -150,7 +150,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                       />}
                       </td>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
-                      {(!enableUpdate && entry.id === uniqueId) ? `${entry.date}` : 
+                      {(!enableUpdate && entry.id !== uniqueId) ? `${entry.date}` : 
                       <input
                         type="string"
                         id="date"
