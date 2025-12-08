@@ -10,11 +10,11 @@ export const fetchEntries = async (): Promise<Entry[]> => {
   return await response.json();
 };
 
-export const addEntry = async (amount: number, description: string): Promise<void> => {
+export const addEntry = async (amount: number, description: string, date: string): Promise<void> => {
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ amount, description })
+    body: JSON.stringify({ amount, description, date })
   });
 
   if (!response.ok) {

@@ -10,15 +10,17 @@ interface EntryFormProps {
 const EntryForm: React.FC<EntryFormProps> = ({ onEntryAdded }) => {
   const [amount, setAmount] = useState<string>('');
   const [description, setDescription] = useState<string>('');
+  const [date, setDate] = useState<string>('');
   const [message, setMessage] = useState<MessageProps>({ text: '', type: 'success', visible: false });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
-      await addEntry(Number(amount), description);
+      await addEntry(Number(amount), description, date);
       setAmount('');
       setDescription('');
+      setDate('')
       onEntryAdded();
       setMessage({ text: 'Record added successfully!', type: 'success', visible: true });
     } catch (error) {
@@ -50,6 +52,17 @@ const EntryForm: React.FC<EntryFormProps> = ({ onEntryAdded }) => {
           id="desc"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          required
+          className="my-3 p-3.5 w-full text-base border border-[#162447] rounded bg-[#1b1b2f] text-white focus:border-[#1f78ff] focus:outline-none"
+        />
+        <label htmlFor="desc" className="text-lg font-bold mt-3 block">
+          Date:
+        </label>
+        <input
+          type="date"
+          id="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
           required
           className="my-3 p-3.5 w-full text-base border border-[#162447] rounded bg-[#1b1b2f] text-white focus:border-[#1f78ff] focus:outline-none"
         />
