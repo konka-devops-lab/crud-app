@@ -16,6 +16,8 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
   const [amountValue, setAmountValue] = useState<number>();
   const [descriptionValue, setDescriptionValue] = useState<string>("");
   const [dateValue, setDateValue] = useState<string>("");
+  const [uniqueId, setUniqueId] = useState<number | null>(null);
+
   const handleDelete = async (id: number) => {
     if (!window.confirm('Are you sure you want to delete this record?')) {
       return;
@@ -126,7 +128,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                   <tr key={entry.id}>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.id}</td>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
-                     {!enableUpdate ? `${entry.amount}` :
+                     {(!enableUpdate && entry.id === uniqueId) ? `${entry.amount}` :
                      <input
                         type="number"
                         id="amount"
@@ -137,7 +139,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                      />}
                     </td>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
-                      {!enableUpdate ? `${entry.description}` : 
+                      {(!enableUpdate && entry.id === uniqueId) ? `${entry.description}` : 
                        <input
                         type="string"
                         id="description"
@@ -148,7 +150,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                       />}
                       </td>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
-                      {!enableUpdate ? `${entry.date}` : 
+                      {(!enableUpdate && entry.id === uniqueId) ? `${entry.date}` : 
                       <input
                         type="string"
                         id="date"
@@ -167,7 +169,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                         Save
                       </button> : 
                       <button
-                        onClick={() => {setEnableUpdate(true); setAmountValue(entry.amount); setDescriptionValue(entry.description); setDateValue(entry.date);  }}
+                        onClick={() => {setEnableUpdate(true); setUniqueId(entry.id); setAmountValue(entry.amount); setDescriptionValue(entry.description); setDateValue(entry.date);  }}
                         className="p-2 bg-[#1f78ff] text-white border-none rounded cursor-pointer hover:bg-[#145fc4] transition-colors duration-200 w-full"
                       >
                         Update
