@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Entry, MessageProps } from '../types';
-import { deleteEntry, deleteAll } from '../api/entriesApi';
+import { deleteEntry, deleteAll, updateEntry } from '../api/entriesApi';
 import Message from './Message';
 import { Download } from 'lucide-react';
 
@@ -51,12 +51,11 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
       return;
     }
     try {
-      await deleteEntry(id);
-      onEntryDeleted();
-      setMessage({ text: 'Record deleted successfully!', type: 'error', visible: true });
+      await updateEntry(id, amount, description, date);
+      setMessage({ text: 'Record updated successfully!', type: 'error', visible: true });
     } catch (error) {
-      console.error('Error deleting entry:', error);
-      setMessage({ text: 'Failed to delete record. Please try again.', type: 'error', visible: true });
+      console.error('Error  updating entry:', error);
+      setMessage({ text: 'Failed to update record. Please try again.', type: 'error', visible: true });
     }
   };
   const handleDownload = () => {
@@ -141,32 +140,40 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                       />}
                     </td>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
-                      !enableUpdate ? {entry.description} : 
+                      {!enableUpdate ? `${entry.description}` : 
                        <input
                         type="string"
                         id="description"
                         value={entry.description}
                         onChange={(e) => setDescription(e.target.value)}
                         className="my-3 p-3.5 w-full text-base border border-[#162447] rounded bg-[#1b1b2f] text-white focus:border-[#1f78ff] focus:outline-none"
-                      />
+                      />}
                       </td>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
-                      !enableUpdate ? {entry.date} : 
+                      {!enableUpdate ? `${entry.date}` : 
                       <input
                         type="string"
                         id="date"
                         value={entry.date}
                         onChange={(e) => setDate(e.target.value)}
                         className="my-3 p-3.5 w-full text-base border border-[#162447] rounded bg-[#1b1b2f] text-white focus:border-[#1f78ff] focus:outline-none"
-                      />
+                      />}
                     </td>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
+                      {enableUpdate ? 
                       <button
-                        onClick={() => {handleUpdate(entry.id); setEnableUpdate(true);}}
+                        onClick={() => {handleUpdate(entry.id); setEnableUpdate(false);}}
                         className="p-2 bg-[#1f78ff] text-white border-none rounded cursor-pointer hover:bg-[#145fc4] transition-colors duration-200 w-full"
                       >
-                        {enableUpdate ? "Save": "Update"}
+                        Save
+                      </button> : 
+                      <button
+                        onClick={() => {setEnableUpdate(true);}}
+                        className="p-2 bg-[#1f78ff] text-white border-none rounded cursor-pointer hover:bg-[#145fc4] transition-colors duration-200 w-full"
+                      >
+                        Update
                       </button>
+                      }
                       <button
                         onClick={() => handleDelete(entry.id)}
                         className="p-2 bg-[#1f78ff] text-white border-none rounded cursor-pointer hover:bg-[#145fc4] transition-colors duration-200 w-full"

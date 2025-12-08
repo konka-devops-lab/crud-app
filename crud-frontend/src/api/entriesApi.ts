@@ -40,3 +40,14 @@ export const deleteAll = async (): Promise<void> => {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
+export const updateEntry = async (id: number, amount: number, description: string, date: string): Promise<void> => {
+  const response = await fetch(`${API_URL}/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ amount, description, date })
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+}
