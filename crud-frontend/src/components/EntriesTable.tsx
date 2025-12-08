@@ -130,7 +130,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                      <input
                         type="number"
                         id="amount"
-                        value={entry.amount}
+                        value={amountValue}
                         onChange={(e) => setAmountValue(e.target.value)}
                         className="my-3 p-3.5 w-full text-base border border-[#162447] rounded bg-[#1b1b2f] text-white focus:border-[#1f78ff] focus:outline-none"
                         required
@@ -141,7 +141,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                        <input
                         type="string"
                         id="description"
-                        value={entry.description}
+                        value={descriptionValue
                         onChange={(e) => setDescriptionValue(e.target.value)}
                         className="my-3 p-3.5 w-full text-base border border-[#162447] rounded bg-[#1b1b2f] text-white focus:border-[#1f78ff] focus:outline-none"
                         required
@@ -152,7 +152,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                       <input
                         type="string"
                         id="date"
-                        value={entry.date}
+                        value={dateValue}
                         onChange={(e) => setDateValue(e.target.value)}
                         className="my-3 p-3.5 w-full text-base border border-[#162447] rounded bg-[#1b1b2f] text-white focus:border-[#1f78ff] focus:outline-none"
                         required
@@ -167,7 +167,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                         Save
                       </button> : 
                       <button
-                        onClick={() => {setEnableUpdate(true);}}
+                        onClick={() => {setEnableUpdate(true); setAmountValue(entry.amount); setDescriptionValue(entry.description); setDateValue(entry.date);  }}
                         className="p-2 bg-[#1f78ff] text-white border-none rounded cursor-pointer hover:bg-[#145fc4] transition-colors duration-200 w-full"
                       >
                         Update
