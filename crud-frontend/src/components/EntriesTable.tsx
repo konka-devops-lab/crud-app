@@ -141,7 +141,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                        <input
                         type="string"
                         id="description"
-                        value={descriptionValue
+                        value={descriptionValue}
                         onChange={(e) => setDescriptionValue(e.target.value)}
                         className="my-3 p-3.5 w-full text-base border border-[#162447] rounded bg-[#1b1b2f] text-white focus:border-[#1f78ff] focus:outline-none"
                         required
