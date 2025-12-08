@@ -17,12 +17,6 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
     if (!window.confirm('Are you sure you want to delete this record?')) {
       return;
     }
-  const handleDeleteAll = async () => {
-    if (!window.confirm('Are you sure you want to delete all records?')) {
-      return;
-    }
-
-
     try {
       await deleteEntry(id);
       onEntryDeleted();
@@ -32,12 +26,37 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
       setMessage({ text: 'Failed to delete record. Please try again.', type: 'error', visible: true });
     }
   };
-
+  const handleDeleteAll = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete all records?')) {
+      return;
+    }
+    try {
+      await deleteEntry(id);
+      onEntryDeleted();
+      setMessage({ text: 'Record deleted successfully!', type: 'error', visible: true });
+    } catch (error) {
+      console.error('Error deleting entry:', error);
+      setMessage({ text: 'Failed to delete record. Please try again.', type: 'error', visible: true });
+    }
+  };
+  const handleUpdate = async (id: number) => {
+    if (!window.confirm('Are you sure you want to update this records?')) {
+      return;
+    }
+    try {
+      await deleteEntry(id);
+      onEntryDeleted();
+      setMessage({ text: 'Record deleted successfully!', type: 'error', visible: true });
+    } catch (error) {
+      console.error('Error deleting entry:', error);
+      setMessage({ text: 'Failed to delete record. Please try again.', type: 'error', visible: true });
+    }
+  };
   const handleDownload = () => {
     const headers = ['ID', 'Amount', 'Description', 'Date'];
     const csvContent = [
       headers.join(','),
-      ...entries.map(entry => [entry.id, entry.amount, entry.description, entry.date].join(','))
+      ...entries.map(entry => [entry.id, entry.amount, entry.description, entry.data].join(','))
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -106,10 +125,10 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.id}</td>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.amount}</td>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.description}</td>
-                    {/* <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.date}</td> */}
+                    <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.date}</td>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
                       <button
-                        onClick={() => handleDelete(entry.id)}
+                        onClick={() => handleUpdate(entry.id)}
                         className="p-2 bg-[#1f78ff] text-white border-none rounded cursor-pointer hover:bg-[#145fc4] transition-colors duration-200 w-full"
                       >
                         Update
