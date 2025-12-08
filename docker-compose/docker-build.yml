@@ -7,7 +7,7 @@ services:
 
   crud-backend:
     build:
-      context: ../crud-backend
+      context: ../crud-backend-new-copy
       dockerfile: Dockerfile
     image: crud-backend:v1
 
