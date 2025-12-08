@@ -163,7 +163,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
                       {enableUpdate ? 
                       <button
-                        onClick={() => {handleUpdate(entry.id); setEnableUpdate(false);}}
+                        onClick={() => {handleUpdate(entry.id); setEnableUpdate(false); setUniqueId(null);}}
                         className="p-2 bg-[#1f78ff] text-white border-none rounded cursor-pointer hover:bg-[#145fc4] transition-colors duration-200 w-full"
                       >
                         Save
