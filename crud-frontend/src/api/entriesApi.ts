@@ -31,3 +31,12 @@ export const deleteEntry = async (id: number): Promise<void> => {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 };
+export const deleteAll = async (): Promise<void> => {
+  const response = await fetch(`${API_URL}`, {
+    method: 'DELETE'
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+}

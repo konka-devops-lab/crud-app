@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Entry, MessageProps } from '../types';
-import { deleteEntry } from '../api/entriesApi';
+import { deleteEntry, deleteAll } from '../api/entriesApi';
 import Message from './Message';
 import { Download } from 'lucide-react';
 
@@ -26,17 +26,17 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
       setMessage({ text: 'Failed to delete record. Please try again.', type: 'error', visible: true });
     }
   };
-  const handleDeleteAll = async (id: number) => {
+  const handleDeleteAll = async () => {
     if (!window.confirm('Are you sure you want to delete all records?')) {
       return;
     }
     try {
-      await deleteEntry(id);
+      await deleteAll();
       onEntryDeleted();
-      setMessage({ text: 'Record deleted successfully!', type: 'error', visible: true });
+      setMessage({ text: 'All Records deleted successfully!', type: 'error', visible: true });
     } catch (error) {
-      console.error('Error deleting entry:', error);
-      setMessage({ text: 'Failed to delete record. Please try again.', type: 'error', visible: true });
+      console.error('Error deleting all records:', error);
+      setMessage({ text: 'Failed to delete records. Please try again.', type: 'error', visible: true });
     }
   };
   const handleUpdate = async (id: number) => {
