@@ -5,12 +5,15 @@ import Message from './Message';
 
 interface EntryFormProps {
   onEntryAdded: () => void;
+  amount: number | string;
+  setAmount: React.Dispatch<React.SetStateAction<number | string>>;
+  description: string;
+  setDescription: React.Dispatch<React.SetStateAction<string>>;
+  date: string;
+  setDate: React.Dispatch<React.SetStateAction<string>>; 
 }
 
-const EntryForm: React.FC<EntryFormProps> = ({ onEntryAdded }) => {
-  const [amount, setAmount] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
-  const [date, setDate] = useState<string>('');
+const EntryForm: React.FC<EntryFormProps> = ({ onEntryAdded, amount, setAmount, description, setDescription, date, setDate }) => {
   const [message, setMessage] = useState<MessageProps>({ text: '', type: 'success', visible: false });
 
   const handleSubmit = async (e: React.FormEvent) => {

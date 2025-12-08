@@ -9,7 +9,9 @@ import { Entry } from './types';
 function App() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [amount, setAmount] = useState<string>('');
+    const [description, setDescription] = useState<string>('');
+    const [date, setDate] = useState<string>('');
   const loadEntries = async () => {
     setLoading(true);
     try {
@@ -31,11 +33,25 @@ function App() {
       <Header />
       
       <div className="flex justify-between items-stretch flex-grow p-5 flex-col md:flex-row">
-        <EntryForm onEntryAdded={loadEntries} />
+        <EntryForm 
+          onEntryAdded={loadEntries}
+          amount={amount}
+          setAmount={setAmount}
+          description={description}
+          setDescription={setDescription}
+          date={date}
+          setDate={setDate}
+        />
         <EntriesTable 
           entries={entries} 
           loading={loading} 
           onEntryDeleted={loadEntries} 
+          amount={amount}
+          setAmount={setAmount}
+          description={description}
+          setDescription={setDescription}
+          date={date}
+          setDate={setDate}
         />
       </div>
       

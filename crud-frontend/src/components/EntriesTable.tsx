@@ -8,10 +8,17 @@ interface EntriesTableProps {
   entries: Entry[];
   loading: boolean;
   onEntryDeleted: () => void;
+  amount: number | string;
+  setAmount: React.Dispatch<React.SetStateAction<number | string>>;
+  description: string;
+  setDescription: React.Dispatch<React.SetStateAction<string>>;
+  date: string;
+  setDate: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEntryDeleted }) => {
+const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEntryDeleted, amount, setAmount, description, setDescription, date, setDate }) => {
   const [message, setMessage] = useState<MessageProps>({ text: '', type: 'success', visible: false });
+  const [enableUpdate, setEnableUpdate] = useState<boolean>(false);
 
   const handleDelete = async (id: number) => {
     if (!window.confirm('Are you sure you want to delete this record?')) {
@@ -123,15 +130,42 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                 entries.map((entry) => (
                   <tr key={entry.id}>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.id}</td>
-                    <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.amount}</td>
+                    {!enableUpdate ? <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.amount}</td>
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.description}</td>
-                    <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.date}</td>
+                    <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.date}</td> :
+                    <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
+                      <input
+                        type="number"
+                        id="amount"
+                        value={entry.amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        required
+                      />
+                    </td>
+                    <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
+                      <input
+                        type="string"
+                        id="description"
+                        value={entry.description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        required
+                      />
+                    </td>
+                    <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
+                      <input
+                        type="string"
+                        id="date"
+                        value={entry.date}
+                        onChange={(e) => setDate(e.target.value)}
+                      />
+                    </td>
+                    }
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
                       <button
-                        onClick={() => handleUpdate(entry.id)}
+                        onClick={() => {handleUpdate(entry.id); setEnableUpdate(true);}}
                         className="p-2 bg-[#1f78ff] text-white border-none rounded cursor-pointer hover:bg-[#145fc4] transition-colors duration-200 w-full"
                       >
-                        Update
+                        {enableUpdate ? "Save": "Update"}
                       </button>
                       <button
                         onClick={() => handleDelete(entry.id)}
