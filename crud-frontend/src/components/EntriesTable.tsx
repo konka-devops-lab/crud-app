@@ -17,6 +17,11 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
     if (!window.confirm('Are you sure you want to delete this record?')) {
       return;
     }
+  const handleDeleteAll = async () => {
+    if (!window.confirm('Are you sure you want to delete all records?')) {
+      return;
+    }
+
 
     try {
       await deleteEntry(id);
@@ -29,10 +34,10 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
   };
 
   const handleDownload = () => {
-    const headers = ['ID', 'Amount', 'Description'];
+    const headers = ['ID', 'Amount', 'Description', 'Date'];
     const csvContent = [
       headers.join(','),
-      ...entries.map(entry => [entry.id, entry.amount, entry.description].join(','))
+      ...entries.map(entry => [entry.id, entry.amount, entry.description, entry.date].join(','))
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -104,7 +109,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                     {/* <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">{entry.date}</td> */}
                     <td className="border border-[#1b1b2f] p-3 text-base text-left text-white">
                       <button
-                        onClick={() => handleUpdate(entry.id)}
+                        onClick={() => handleDelete(entry.id)}
                         className="p-2 bg-[#1f78ff] text-white border-none rounded cursor-pointer hover:bg-[#145fc4] transition-colors duration-200 w-full"
                       >
                         Update
