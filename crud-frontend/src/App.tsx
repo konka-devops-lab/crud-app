@@ -45,13 +45,7 @@ function App() {
         <EntriesTable 
           entries={entries} 
           loading={loading} 
-          onEntryDeleted={loadEntries} 
-          amount={amount}
-          setAmount={setAmount}
-          description={description}
-          setDescription={setDescription}
-          date={date}
-          setDate={setDate}
+          onEntryDeleted={loadEntries}
         />
       </div>
       

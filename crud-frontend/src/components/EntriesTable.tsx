@@ -8,18 +8,14 @@ interface EntriesTableProps {
   entries: Entry[];
   loading: boolean;
   onEntryDeleted: () => void;
-  amount: number | string;
-  setAmount: React.Dispatch<React.SetStateAction<number | string>>;
-  description: string;
-  setDescription: React.Dispatch<React.SetStateAction<string>>;
-  date: string;
-  setDate: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEntryDeleted, amount, setAmount, description, setDescription, date, setDate }) => {
+const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEntryDeleted }) => {
   const [message, setMessage] = useState<MessageProps>({ text: '', type: 'success', visible: false });
   const [enableUpdate, setEnableUpdate] = useState<boolean>(false);
-
+  const [amountValue, setAmountValue] = useState<number | string>("");
+  const [descriptionValue, setDescriptionValue] = useState<string>("");
+  const [dateValue, setDateValue] = useState<string>("");
   const handleDelete = async (id: number) => {
     if (!window.confirm('Are you sure you want to delete this record?')) {
       return;
@@ -51,7 +47,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
       return;
     }
     try {
-      await updateEntry(id, amount, description, date);
+      await updateEntry(id, amountValue, descriptionValue, dateValue);
       setMessage({ text: 'Record updated successfully!', type: 'error', visible: true });
     } catch (error) {
       console.error('Error  updating entry:', error);
@@ -135,7 +131,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                         type="number"
                         id="amount"
                         value={entry.amount}
-                        onChange={(e) => setAmount(e.target.value)}
+                        onChange={(e) => setAmountValue(e.target.value)}
                         className="my-3 p-3.5 w-full text-base border border-[#162447] rounded bg-[#1b1b2f] text-white focus:border-[#1f78ff] focus:outline-none"
                       />}
                     </td>
@@ -145,7 +141,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                         type="string"
                         id="description"
                         value={entry.description}
-                        onChange={(e) => setDescription(e.target.value)}
+                        onChange={(e) => setDescriptionValue(e.target.value)}
                         className="my-3 p-3.5 w-full text-base border border-[#162447] rounded bg-[#1b1b2f] text-white focus:border-[#1f78ff] focus:outline-none"
                       />}
                       </td>
@@ -155,7 +151,7 @@ const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEn
                         type="string"
                         id="date"
                         value={entry.date}
-                        onChange={(e) => setDate(e.target.value)}
+                        onChange={(e) => setDateValue(e.target.value)}
                         className="my-3 p-3.5 w-full text-base border border-[#162447] rounded bg-[#1b1b2f] text-white focus:border-[#1f78ff] focus:outline-none"
                       />}
                     </td>
