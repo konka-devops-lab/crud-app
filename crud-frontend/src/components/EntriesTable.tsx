@@ -13,7 +13,7 @@ interface EntriesTableProps {
 const EntriesTable: React.FC<EntriesTableProps> = ({ entries = [], loading, onEntryDeleted }) => {
   const [message, setMessage] = useState<MessageProps>({ text: '', type: 'success', visible: false });
   const [enableUpdate, setEnableUpdate] = useState<boolean>(false);
-  const [amountValue, setAmountValue] = useState<number | string>("");
+  const [amountValue, setAmountValue] = useState<number>();
   const [descriptionValue, setDescriptionValue] = useState<string>("");
   const [dateValue, setDateValue] = useState<string>("");
   const handleDelete = async (id: number) => {
